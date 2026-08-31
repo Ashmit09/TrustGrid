@@ -1,0 +1,954 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TrustGrid — Master Project Specification</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #1f2328;
+    background: #ffffff;
+  }
+  .page { max-width: 860px; margin: 0 auto; padding: 48px 32px 64px; }
+
+  /* Header */
+  .doc-header { border-bottom: 2px solid #e5e7eb; padding-bottom: 28px; margin-bottom: 40px; }
+  .doc-header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: #1f2328; }
+  .doc-header .tagline { font-size: 15px; color: #57606a; margin-top: 6px; }
+  .doc-header .meta { display: flex; gap: 20px; margin-top: 16px; flex-wrap: wrap; }
+  .doc-header .meta span { font-size: 12px; background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 4px; padding: 3px 10px; color: #57606a; }
+  .doc-header .meta span strong { color: #1f2328; }
+
+  /* TOC */
+  .toc { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 24px; margin-bottom: 48px; }
+  .toc h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #57606a; margin-bottom: 12px; }
+  .toc ol { padding-left: 18px; column-count: 2; column-gap: 32px; }
+  .toc li { font-size: 13px; margin-bottom: 5px; }
+  .toc a { color: #3b82d4; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Sections */
+  .section { margin-bottom: 52px; }
+  .section-header { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 22px; }
+  .section-num { width: 28px; height: 28px; border-radius: 6px; background: #3b82d4; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-header h2 { font-size: 18px; font-weight: 700; color: #1f2328; }
+
+  h3 { font-size: 14px; font-weight: 700; color: #1f2328; margin: 20px 0 8px; }
+  h4 { font-size: 13px; font-weight: 600; color: #57606a; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  p { margin-bottom: 10px; color: #1f2328; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 4px; }
+
+  /* Callout boxes */
+  .callout { border-radius: 6px; padding: 12px 16px; margin: 14px 0; font-size: 13px; }
+  .callout.info { background: #eff6ff; border-left: 3px solid #3b82d4; }
+  .callout.warn { background: #fffbeb; border-left: 3px solid #f59e0b; }
+  .callout.success { background: #f0fdf4; border-left: 3px solid #22c55e; }
+  .callout strong { font-weight: 600; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin: 14px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #f7f8fa; border: 1px solid #e5e7eb; padding: 8px 12px; font-weight: 600; text-align: left; color: #1f2328; }
+  td { border: 1px solid #e5e7eb; padding: 8px 12px; color: #1f2328; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Code / mono */
+  code { font-family: "SF Mono", "Fira Code", "Consolas", monospace; font-size: 12px; background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 3px; padding: 1px 5px; }
+  pre { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px 18px; font-size: 12px; font-family: "SF Mono", "Fira Code", "Consolas", monospace; overflow-x: auto; margin: 12px 0; line-height: 1.6; color: #1f2328; }
+
+  /* Arch diagram */
+  .arch { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin: 16px 0; }
+  .arch-row { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .arch-box { background: #fff; border: 1.5px solid #3b82d4; border-radius: 8px; padding: 12px 24px; text-align: center; font-size: 13px; font-weight: 600; color: #1f2328; min-width: 220px; }
+  .arch-box.secondary { border-color: #7c5cd8; }
+  .arch-box.db { border-color: #22c55e; }
+  .arch-label { font-size: 11px; color: #57606a; margin-top: 2px; font-weight: 400; }
+  .arch-arrow { color: #57606a; font-size: 18px; line-height: 1.2; text-align: center; }
+  .arch-cols { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* Tier badges */
+  .tier-badge { display: inline-block; border-radius: 4px; padding: 2px 9px; font-size: 12px; font-weight: 700; }
+  .tier-restricted { background: #fee2e2; color: #b91c1c; }
+  .tier-standard { background: #fef3c7; color: #92400e; }
+  .tier-trusted { background: #dbeafe; color: #1d4ed8; }
+  .tier-elite { background: #ede9fe; color: #6d28d9; }
+
+  .confidence-low { background: #fef3c7; color: #92400e; }
+  .confidence-med { background: #dbeafe; color: #1d4ed8; }
+  .confidence-high { background: #dcfce7; color: #166534; }
+
+  /* Dimension cards */
+  .dim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin: 14px 0; }
+  .dim-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 16px; }
+  .dim-card h4 { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #1f2328; text-transform: none; letter-spacing: 0; }
+  .dim-card .weight { display: inline-block; background: #eff6ff; color: #3b82d4; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 1px 6px; margin-bottom: 6px; }
+  .dim-card ul { padding-left: 16px; margin: 0; font-size: 12px; color: #57606a; }
+
+  /* Phase roadmap */
+  .phase-list { display: flex; flex-direction: column; gap: 8px; }
+  .phase-item { display: flex; gap: 14px; align-items: flex-start; background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 14px; }
+  .phase-num { background: #3b82d4; color: #fff; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 8px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+  .phase-num.ml { background: #7c5cd8; }
+  .phase-num.ui { background: #22c55e; }
+  .phase-content h4 { font-size: 13px; font-weight: 700; color: #1f2328; margin: 0 0 3px; text-transform: none; letter-spacing: 0; }
+  .phase-content p { font-size: 12px; color: #57606a; margin: 0; }
+
+  /* API list */
+  .api-group { margin-bottom: 20px; }
+  .api-item { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 14px; margin-bottom: 6px; font-size: 13px; }
+  .api-item .method { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 1px 7px; margin-right: 8px; }
+  .method.get { background: #dbeafe; color: #1d4ed8; }
+  .method.post { background: #dcfce7; color: #166534; }
+  .method.put { background: #fef3c7; color: #92400e; }
+  .method.delete { background: #fee2e2; color: #b91c1c; }
+  .api-item .path { font-family: "SF Mono", "Fira Code", monospace; font-weight: 600; }
+  .api-item .api-desc { font-size: 12px; color: #57606a; margin-top: 3px; }
+  .api-item .auth { font-size: 11px; background: #ede9fe; color: #6d28d9; border-radius: 3px; padding: 1px 6px; margin-left: 8px; }
+
+  /* Page list */
+  .page-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .page-group { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 16px; }
+  .page-group h4 { font-size: 13px; font-weight: 700; color: #3b82d4; margin: 0 0 8px; text-transform: none; letter-spacing: 0; }
+  .page-group ul { margin: 0; padding-left: 16px; }
+  .page-group li { font-size: 13px; margin-bottom: 3px; }
+
+  /* Feature grid */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .feature-col { border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; }
+  .feature-col h4 { font-size: 13px; font-weight: 700; margin: 0 0 8px; }
+  .feature-col.mvp h4 { color: #166534; }
+  .feature-col.optional h4 { color: #92400e; }
+  .feature-col.future h4 { color: #57606a; }
+  .feature-col ul { margin: 0; padding-left: 16px; font-size: 12px; color: #57606a; }
+
+  /* Formula box */
+  .formula { background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 14px 18px; font-family: "SF Mono", "Fira Code", monospace; font-size: 13px; color: #1f2328; margin: 12px 0; }
+
+  /* DB schema */
+  .schema-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .schema-table { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; font-size: 12px; }
+  .schema-table .st-head { background: #3b82d4; color: #fff; padding: 8px 12px; font-weight: 700; font-size: 13px; }
+  .schema-table .st-head.purple { background: #7c5cd8; }
+  .schema-table .st-head.green { background: #16a34a; }
+  .schema-table .st-row { display: flex; justify-content: space-between; padding: 5px 12px; border-top: 1px solid #f0f0f0; }
+  .schema-table .st-row:nth-child(odd) { background: #fafafa; }
+  .schema-table .st-field { font-weight: 600; color: #1f2328; }
+  .schema-table .st-type { color: #57606a; font-size: 11px; font-style: italic; }
+  .schema-table .pk { color: #d97706; font-size: 10px; font-weight: 700; margin-left: 4px; }
+  .schema-table .fk { color: #7c5cd8; font-size: 10px; font-weight: 700; margin-left: 4px; }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 40px 0; }
+
+  /* Footer */
+  .doc-footer { border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center; color: #57606a; font-size: 12px; margin-top: 60px; }
+
+  @media (max-width: 600px) {
+    .toc ol { column-count: 1; }
+    .page-cols { grid-template-columns: 1fr; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .arch-cols { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  
+  <div class="doc-header">
+    <h1>TrustGrid</h1>
+    <div class="tagline">A Dynamic Trust Engine for E-Commerce Marketplaces</div>
+    <div class="meta">
+      <span><strong>Type:</strong> Academic Prototype</span>
+      <span><strong>Stack:</strong> React · FastAPI · PostgreSQL · XGBoost</span>
+      <span><strong>Score Range:</strong> 0 – 1000</span>
+      <span><strong>ML Model:</strong> XGBoost (behavioral reliability)</span>
+      <span><strong>Status:</strong> Pre-development specification</span>
+    </div>
+  </div>
+
+  
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#A">Project Summary</a></li>
+      <li><a href="#B">Feature List (MVP / Optional / Future)</a></li>
+      <li><a href="#C">System Architecture</a></li>
+      <li><a href="#D">Database Schema</a></li>
+      <li><a href="#E">API Contract</a></li>
+      <li><a href="#F">Trust Scoring Methodology</a></li>
+      <li><a href="#G">ML Plan</a></li>
+      <li><a href="#H">UI Plan &amp; Pages</a></li>
+      <li><a href="#I">Project Folder Structure</a></li>
+      <li><a href="#J">Development Roadmap</a></li>
+    </ol>
+  </div>
+
+  
+  <div class="section" id="A">
+    <div class="section-header"><div class="section-num">A</div><h2>Project Summary</h2></div>
+
+    <p><strong>TrustGrid</strong> is a dynamic, ML-assisted trust scoring and privilege engine for two-sided e-commerce marketplaces. It is <em>not</em> primarily an e-commerce website. The demo marketplace exists solely to generate behavioral events that feed the trust engine.</p>
+
+    <div class="callout info">
+      <strong>Core product:</strong> A trust-as-a-service engine that evaluates buyer and seller marketplace behavior, produces a dynamic Trust Score (0–1000), a Confidence level (LOW / MEDIUM / HIGH), and grants or revokes marketplace privileges accordingly.
+    </div>
+
+    <h3>Key Differentiators vs. Simple Star Ratings</h3>
+    <ul>
+      <li>Behavioral signals replace static accumulated ratings</li>
+      <li>XGBoost estimates per-dimension <em>reliability</em>, not just a count</li>
+      <li>Exponential time decay (90-day half-life) — recent behavior outweighs old</li>
+      <li>Confidence layer prevents new accounts from gaming maximum privileges</li>
+      <li>Explainable score changes shown in plain language to users</li>
+      <li>Centralized privilege engine driven by score + confidence + tier</li>
+    </ul>
+
+    <h3>Two-Sided Scoring</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Aspect</th><th>Buyer</th><th>Seller</th></tr></thead>
+        <tbody>
+          <tr><td>ID format</td><td><code>BUY-1xxxx</code></td><td><code>SEL-2xxxx</code></td></tr>
+          <tr><td>Starting score</td><td>700 / LOW confidence</td><td>700 / LOW confidence</td></tr>
+          <tr><td>Dimensions</td><td>Order Reliability, Return Behaviour, Payment Reliability, Cancellation Behaviour, Platform Engagement</td><td>Order Fulfillment, Delivery Performance, Customer Satisfaction, Return &amp; Dispute Handling, Platform Reliability</td></tr>
+          <tr><td>Key privileges</td><td>COD, Voucher, Free Delivery, Priority Support</td><td>Visibility Boost, Trusted Badge, Reduced Fee, Promo Credits</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  
+  <div class="section" id="B">
+    <div class="section-header"><div class="section-num">B</div><h2>Feature List</h2></div>
+    <div class="feature-grid">
+      <div class="feature-col mvp">
+        <h4>✅ MVP (Build Now)</h4>
+        <ul>
+          <li>Buyer &amp; Seller registration / login</li>
+          <li>Auto-generated BUY-/SEL- user IDs</li>
+          <li>JWT authentication</li>
+          <li>Product listing &amp; browsing</li>
+          <li>Place order &amp; simulated payment</li>
+          <li>Order cancellation</li>
+          <li>Return requests</li>
+          <li>Reviews &amp; ratings</li>
+          <li>Referral tracking</li>
+          <li>Seller order management</li>
+          <li>TrustGrid event system</li>
+          <li>Behavioral feature engine</li>
+          <li>Exponential time decay (90d half-life)</li>
+          <li>XGBoost reliability model</li>
+          <li>5-dimension weighted trust engine</li>
+          <li>Score smoothing (α-blending)</li>
+          <li>Confidence: LOW / MEDIUM / HIGH</li>
+          <li>4 trust tiers</li>
+          <li>Privilege engine (buyer &amp; seller)</li>
+          <li>Score history storage &amp; chart</li>
+          <li>Explainability (plain-language reasons)</li>
+          <li>"Improve your score" recommendations</li>
+          <li>Buyer TrustGrid dashboard</li>
+          <li>Seller TrustGrid dashboard</li>
+          <li>Admin analytics dashboard</li>
+          <li>Seed / demo data</li>
+          <li>Unit tests for scoring engine</li>
+        </ul>
+      </div>
+      <div class="feature-col optional">
+        <h4>⚡ Optional (If Time Permits)</h4>
+        <ul>
+          <li>SHAP explainability layer</li>
+          <li>Score download / export</li>
+          <li>Product search / filter</li>
+          <li>Wishlist</li>
+          <li>Seller analytics charts</li>
+          <li>Mobile-optimised views</li>
+          <li>Dark mode</li>
+        </ul>
+      </div>
+      <div class="feature-col future">
+        <h4>🔮 Future Scope (Not in MVP)</h4>
+        <ul>
+          <li>Anomaly / fraud detection (Isolation Forest)</li>
+          <li>Kafka event streaming</li>
+          <li>Model retraining pipeline</li>
+          <li>Graph-based trust networks</li>
+          <li>Cross-platform reputation portability</li>
+          <li>Real payment gateway</li>
+          <li>Deep learning models</li>
+          <li>A/B testing privilege policies</li>
+          <li>Advanced fairness auditing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section" id="C">
+    <div class="section-header"><div class="section-num">C</div><h2>System Architecture</h2></div>
+
+    <div class="arch">
+      <div class="arch-row">
+        <div class="arch-box">
+          Demo E-Commerce UI (React + Vite)
+          <div class="arch-label">Buyer / Seller / Admin pages — Axios REST calls</div>
+        </div>
+        <div class="arch-arrow">↓ REST / JSON</div>
+        <div class="arch-box">
+          FastAPI Backend
+          <div class="arch-label">Auth · User Mgmt · Marketplace · TrustGrid API</div>
+        </div>
+        <div class="arch-arrow">↓ internal call</div>
+        <div class="arch-cols">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+            <div class="arch-box secondary">Event Service<div class="arch-label">Records &amp; classifies events</div></div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box secondary">Feature Engine<div class="arch-label">Aggregation · time decay</div></div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box secondary">XGBoost Model<div class="arch-label">Offline-trained · loaded via joblib</div></div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box secondary">Trust Engine<div class="arch-label">Weighted dims · smoothing · 0–1000</div></div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box secondary">Privilege Engine<div class="arch-label">Score + Confidence + Tier → Benefits</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-top:8px">
+            <div class="arch-box secondary">Confidence Service<div class="arch-label">Evidence volume → LOW/MED/HIGH</div></div>
+            <div style="height:12px"></div>
+            <div class="arch-box secondary">Explanation Service<div class="arch-label">Translates features → plain language</div></div>
+          </div>
+        </div>
+        <div class="arch-arrow">↓ SQLAlchemy ORM</div>
+        <div class="arch-box db">
+          PostgreSQL
+          <div class="arch-label">users · events · orders · scores · score_history · privileges</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>TrustGrid Module Responsibilities</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Module</th><th>File</th><th>Responsibility</th></tr></thead>
+        <tbody>
+          <tr><td>Event Service</td><td><code>event_service.py</code></td><td>Validate, store, and classify marketplace events; trigger score recalc for affected user only</td></tr>
+          <tr><td>Feature Engine</td><td><code>feature_engine.py</code></td><td>Aggregate events → feature vector; apply exponential time decay</td></tr>
+          <tr><td>Trust Engine</td><td><code>trust_engine.py</code></td><td>Combine ML outputs with weights; α-blend with previous score; clamp 0–1000; determine tier</td></tr>
+          <tr><td>Confidence Service</td><td><code>confidence_service.py</code></td><td>Count meaningful events → LOW / MEDIUM / HIGH</td></tr>
+          <tr><td>Privilege Engine</td><td><code>privilege_engine.py</code></td><td>Single source of truth for benefit eligibility; returns tier, active benefits, reasons</td></tr>
+          <tr><td>Explanation Service</td><td><code>explanation_service.py</code></td><td>Map feature deltas → human-readable change reasons</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  
+  <div class="section" id="D">
+    <div class="section-header"><div class="section-num">D</div><h2>Database Schema</h2></div>
+
+    <div class="schema-grid">
+
+      <div class="schema-table">
+        <div class="st-head">users</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">user_id</span><span class="st-type">varchar unique</span></div>
+        <div class="st-row"><span class="st-field">name</span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">email</span><span class="st-type">varchar unique</span></div>
+        <div class="st-row"><span class="st-field">password_hash</span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">role</span><span class="st-type">enum(buyer,seller,admin)</span></div>
+        <div class="st-row"><span class="st-field">created_at</span><span class="st-type">timestamptz</span></div>
+        <div class="st-row"><span class="st-field">updated_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head">products</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">seller_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">title</span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">description</span><span class="st-type">text</span></div>
+        <div class="st-row"><span class="st-field">price</span><span class="st-type">numeric</span></div>
+        <div class="st-row"><span class="st-field">stock</span><span class="st-type">integer</span></div>
+        <div class="st-row"><span class="st-field">category</span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">is_active</span><span class="st-type">boolean</span></div>
+        <div class="st-row"><span class="st-field">created_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head">orders</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">order_id</span><span class="st-type">varchar unique</span></div>
+        <div class="st-row"><span class="st-field">buyer_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">seller_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">product_id<span class="fk">FK→products</span></span><span class="st-type">integer</span></div>
+        <div class="st-row"><span class="st-field">quantity</span><span class="st-type">integer</span></div>
+        <div class="st-row"><span class="st-field">total_amount</span><span class="st-type">numeric</span></div>
+        <div class="st-row"><span class="st-field">status</span><span class="st-type">enum</span></div>
+        <div class="st-row"><span class="st-field">created_at</span><span class="st-type">timestamptz</span></div>
+        <div class="st-row"><span class="st-field">completed_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head">payments</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">order_id<span class="fk">FK→orders</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">buyer_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">amount</span><span class="st-type">numeric</span></div>
+        <div class="st-row"><span class="st-field">status</span><span class="st-type">enum(success,failed)</span></div>
+        <div class="st-row"><span class="st-field">created_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head">returns</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">order_id<span class="fk">FK→orders</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">buyer_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">seller_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">reason</span><span class="st-type">text</span></div>
+        <div class="st-row"><span class="st-field">status</span><span class="st-type">enum(pending,resolved,rejected)</span></div>
+        <div class="st-row"><span class="st-field">created_at</span><span class="st-type">timestamptz</span></div>
+        <div class="st-row"><span class="st-field">resolved_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head">reviews</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">order_id<span class="fk">FK→orders</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">reviewer_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">seller_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">rating</span><span class="st-type">integer (1–5)</span></div>
+        <div class="st-row"><span class="st-field">comment</span><span class="st-type">text</span></div>
+        <div class="st-row"><span class="st-field">created_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head">referrals</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">referrer_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">referred_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">status</span><span class="st-type">enum(pending,completed)</span></div>
+        <div class="st-row"><span class="st-field">created_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head purple">trust_events</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">event_id</span><span class="st-type">varchar unique</span></div>
+        <div class="st-row"><span class="st-field">user_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">event_type</span><span class="st-type">varchar (enum)</span></div>
+        <div class="st-row"><span class="st-field">reference_id</span><span class="st-type">varchar (order/etc)</span></div>
+        <div class="st-row"><span class="st-field">metadata</span><span class="st-type">jsonb</span></div>
+        <div class="st-row"><span class="st-field">impact_summary</span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">created_at</span><span class="st-type">timestamptz (indexed)</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head purple">behavior_features</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">user_id<span class="fk">FK→users</span></span><span class="st-type">varchar unique</span></div>
+        <div class="st-row"><span class="st-field">order_completion_rate</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">return_rate</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">payment_success_rate</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">cancellation_rate</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">referral_count</span><span class="st-type">integer</span></div>
+        <div class="st-row"><span class="st-field">avg_rating_given</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">fulfillment_rate</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">late_delivery_rate</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">return_response_rate</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">avg_rating_received</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">decayed_event_count</span><span class="st-type">float</span></div>
+        <div class="st-row"><span class="st-field">updated_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head purple">trust_scores</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">user_id<span class="fk">FK→users</span></span><span class="st-type">varchar unique</span></div>
+        <div class="st-row"><span class="st-field">trust_score</span><span class="st-type">integer</span></div>
+        <div class="st-row"><span class="st-field">confidence</span><span class="st-type">enum(LOW,MEDIUM,HIGH)</span></div>
+        <div class="st-row"><span class="st-field">tier</span><span class="st-type">enum(RESTRICTED…ELITE)</span></div>
+        <div class="st-row"><span class="st-field">dim_scores</span><span class="st-type">jsonb</span></div>
+        <div class="st-row"><span class="st-field">last_updated</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head green">score_history</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">user_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">old_score</span><span class="st-type">integer</span></div>
+        <div class="st-row"><span class="st-field">new_score</span><span class="st-type">integer</span></div>
+        <div class="st-row"><span class="st-field">score_change</span><span class="st-type">integer</span></div>
+        <div class="st-row"><span class="st-field">reason</span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">event_type</span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">created_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="st-head green">privileges</div>
+        <div class="st-row"><span class="st-field">id<span class="pk">PK</span></span><span class="st-type">serial</span></div>
+        <div class="st-row"><span class="st-field">user_id<span class="fk">FK→users</span></span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">privilege_name</span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">status</span><span class="st-type">enum(active,inactive)</span></div>
+        <div class="st-row"><span class="st-field">reason</span><span class="st-type">varchar</span></div>
+        <div class="st-row"><span class="st-field">updated_at</span><span class="st-type">timestamptz</span></div>
+      </div>
+
+    </div>
+
+    <div class="callout info" style="margin-top:16px">
+      <strong>Indexes:</strong> Add indexes on <code>trust_events(user_id, created_at)</code>, <code>trust_scores(user_id)</code>, <code>score_history(user_id, created_at)</code> for query performance.
+    </div>
+  </div>
+
+  
+  <div class="section" id="E">
+    <div class="section-header"><div class="section-num">E</div><h2>API Contract</h2></div>
+
+    <div class="api-group">
+      <h3>Authentication</h3>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/auth/register</span><div class="api-desc">Register buyer or seller. Returns <code>user_id</code>, JWT token, initial trust state.</div></div>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/auth/login</span><div class="api-desc">Authenticate. Returns JWT + full user profile with current trust score.</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/auth/me</span><span class="auth">JWT</span><div class="api-desc">Return authenticated user profile.</div></div>
+    </div>
+
+    <div class="api-group">
+      <h3>Marketplace — Products</h3>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/products</span><div class="api-desc">List products (public). Supports <code>?category=&amp;search=&amp;page=</code>.</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/products/{id}</span><div class="api-desc">Get product detail.</div></div>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/products</span><span class="auth">Seller JWT</span><div class="api-desc">Create product listing. Fires <code>PRODUCT_LISTED</code> event.</div></div>
+      <div class="api-item"><span class="method put">PUT</span><span class="path">/products/{id}</span><span class="auth">Seller JWT</span><div class="api-desc">Update product.</div></div>
+    </div>
+
+    <div class="api-group">
+      <h3>Marketplace — Orders</h3>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/orders</span><span class="auth">Buyer JWT</span><div class="api-desc">Place order. Fires <code>ORDER_PLACED</code> + <code>PAYMENT_SUCCESS/FAILED</code>.</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/orders</span><span class="auth">JWT</span><div class="api-desc">List orders for authenticated user (buyer or seller).</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/orders/{id}</span><span class="auth">JWT</span><div class="api-desc">Get order detail.</div></div>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/orders/{id}/cancel</span><span class="auth">JWT</span><div class="api-desc">Cancel order. Fires <code>ORDER_CANCELLED</code> or <code>SELLER_CANCELLED</code>.</div></div>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/orders/{id}/ship</span><span class="auth">Seller JWT</span><div class="api-desc">Mark order shipped. Fires <code>ORDER_SHIPPED</code>.</div></div>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/orders/{id}/complete</span><span class="auth">Buyer JWT</span><div class="api-desc">Confirm receipt. Fires <code>ORDER_COMPLETED</code> + <code>ORDER_DELIVERED</code>.</div></div>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/orders/{id}/return</span><span class="auth">Buyer JWT</span><div class="api-desc">Request return. Fires <code>RETURN_REQUESTED</code>.</div></div>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/orders/{id}/review</span><span class="auth">Buyer JWT</span><div class="api-desc">Submit review. Fires <code>REVIEW_SUBMITTED</code> + <code>REVIEW_RECEIVED</code>.</div></div>
+    </div>
+
+    <div class="api-group">
+      <h3>TrustGrid</h3>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/trust/me</span><span class="auth">JWT</span><div class="api-desc">Full TrustGrid profile for authenticated user.</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/trust/{user_id}</span><span class="auth">Admin JWT</span><div class="api-desc">Full TrustGrid profile for any user.</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/trust/{user_id}/history</span><span class="auth">JWT (own)</span><div class="api-desc">Paginated score history with reasons.</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/trust/{user_id}/breakdown</span><span class="auth">JWT (own)</span><div class="api-desc">Per-dimension scores and feature values.</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/trust/{user_id}/benefits</span><span class="auth">JWT (own)</span><div class="api-desc">Active and locked privileges with reasons.</div></div>
+      <div class="api-item"><span class="method post">POST</span><span class="path">/trust/events</span><span class="auth">Internal / Admin</span><div class="api-desc">Manually fire a trust event (used for demo / testing).</div></div>
+    </div>
+
+    <div class="api-group">
+      <h3>Admin</h3>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/admin/analytics</span><span class="auth">Admin JWT</span><div class="api-desc">Aggregate stats: totals, avg scores, confidence distribution.</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/admin/users</span><span class="auth">Admin JWT</span><div class="api-desc">Paginated user list with trust scores.</div></div>
+      <div class="api-item"><span class="method get">GET</span><span class="path">/admin/trust-distribution</span><span class="auth">Admin JWT</span><div class="api-desc">Score distribution histogram data for chart.</div></div>
+    </div>
+
+    <h3>Standard TrustGrid Response Shape</h3>
+    <pre>{
+  "user_id": "BUY-10024",
+  "trust_score": 824,
+  "confidence": "HIGH",
+  "tier": "ELITE",
+  "breakdown": {
+    "order_reliability": 92,
+    "return_behaviour": 81,
+    "payment_reliability": 95,
+    "cancellation_behaviour": 84,
+    "platform_engagement": 88
+  },
+  "recent_changes": [
+    { "change": +18, "reason": "Successful completed orders", "event_type": "ORDER_COMPLETED", "at": "2025-01-12" },
+    { "change": +8,  "reason": "Successful referral",       "event_type": "REFERRAL_COMPLETED", "at": "2025-01-10" },
+    { "change": -6,  "reason": "Order cancellation",        "event_type": "ORDER_CANCELLED", "at": "2025-01-08" }
+  ],
+  "benefits": ["COD", "EXCLUSIVE_VOUCHER", "FREE_DELIVERY", "PRIORITY_SUPPORT"]
+}</pre>
+  </div>
+
+  
+  <div class="section" id="F">
+    <div class="section-header"><div class="section-num">F</div><h2>Trust Scoring Methodology</h2></div>
+
+    <h3>Buyer — Five Dimensions</h3>
+    <div class="dim-grid">
+      <div class="dim-card"><h4>Order Reliability</h4><span class="weight">25%</span><ul><li>Completed orders</li><li>Successfully received orders</li><li>Not frequency of purchase</li></ul></div>
+      <div class="dim-card"><h4>Return Behaviour</h4><span class="weight">25%</span><ul><li>Return rate (decayed)</li><li>Return frequency</li><li>Normal returns not punished</li></ul></div>
+      <div class="dim-card"><h4>Payment Reliability</h4><span class="weight">20%</span><ul><li>Successful simulated payments</li><li>Failed payment rate</li><li>Abandoned checkout rate</li></ul></div>
+      <div class="dim-card"><h4>Cancellation Behaviour</h4><span class="weight">15%</span><ul><li>Buyer cancellation rate</li><li>Repeat cancellation penalty</li></ul></div>
+      <div class="dim-card"><h4>Platform Engagement</h4><span class="weight">15%</span><ul><li>Successful referrals</li><li>Reviews submitted</li><li>Infrequent buying ≠ penalty</li></ul></div>
+    </div>
+
+    <h3>Seller — Five Dimensions</h3>
+    <div class="dim-grid">
+      <div class="dim-card"><h4>Order Fulfillment</h4><span class="weight">25%</span><ul><li>Fulfilled orders rate</li><li>Seller-side cancellations</li></ul></div>
+      <div class="dim-card"><h4>Delivery Performance</h4><span class="weight">25%</span><ul><li>On-time delivery rate</li><li>Late delivery rate</li></ul></div>
+      <div class="dim-card"><h4>Customer Satisfaction</h4><span class="weight">20%</span><ul><li>Average product rating</li><li>Customer complaints</li></ul></div>
+      <div class="dim-card"><h4>Return &amp; Dispute Handling</h4><span class="weight">15%</span><ul><li>Return response rate</li><li>Resolution success rate</li><li>Failure to respond penalty</li></ul></div>
+      <div class="dim-card"><h4>Platform Reliability</h4><span class="weight">15%</span><ul><li>Product listing consistency</li><li>Policy compliance</li></ul></div>
+    </div>
+
+    <h3>Time Decay</h3>
+    <div class="callout info">
+      Exponential decay with a <strong>90-day half-life</strong>. λ = ln(2)/90 ≈ 0.00770.
+    </div>
+    <div class="formula">weight(age_days) = exp(−λ × age_days)
+λ = ln(2) / 90 ≈ 0.00770
+
+Examples:
+  age =   0 days  →  weight ≈ 1.000
+  age =  30 days  →  weight ≈ 0.794
+  age =  90 days  →  weight ≈ 0.500
+  age = 180 days  →  weight ≈ 0.250
+  age = 270 days  →  weight ≈ 0.125</div>
+
+    <h3>Score Calculation</h3>
+    <div class="formula">-- Each dimension Dᵢ is on 0–100 from ML reliability output × 100
+
+RawScore (Buyer) = 0.25×D1 + 0.25×D2 + 0.20×D3 + 0.15×D4 + 0.15×D5
+TrustScore       = clamp(round(10 × RawScore), 0, 1000)</div>
+
+    <h3>Score Smoothing</h3>
+    <div class="formula">NewScore = α × ModelScore + (1−α) × PreviousScore
+
+α scales with evidence volume:
+  0–5  events  →  α = 0.20  (score barely moves)
+  6–15 events  →  α = 0.40
+  16–30 events →  α = 0.65
+  31+  events  →  α = 0.85  (model dominates)</div>
+
+    <h3>Tiers</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Score Range</th><th>Tier</th></tr></thead>
+        <tbody>
+          <tr><td>0 – 399</td><td><span class="tier-badge tier-restricted">RESTRICTED</span></td></tr>
+          <tr><td>400 – 599</td><td><span class="tier-badge tier-standard">STANDARD</span></td></tr>
+          <tr><td>600 – 799</td><td><span class="tier-badge tier-trusted">TRUSTED</span></td></tr>
+          <tr><td>800 – 1000</td><td><span class="tier-badge tier-elite">ELITE</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Confidence</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Meaningful Events</th><th>Confidence</th></tr></thead>
+        <tbody>
+          <tr><td>0 – 5</td><td><span class="tier-badge confidence-low">LOW</span></td></tr>
+          <tr><td>6 – 30</td><td><span class="tier-badge confidence-med">MEDIUM</span></td></tr>
+          <tr><td>31+</td><td><span class="tier-badge confidence-high">HIGH</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13px;color:#57606a">Meaningful events: completed orders, successful payments, reviews, referrals, fulfilled orders, resolved returns. Raw event counts are also weighted by account age.</p>
+
+    <h3>New User Initial State</h3>
+    <div class="callout success">
+      Trust Score: <strong>700</strong>  |  Confidence: <strong>LOW</strong>  |  Tier: <strong>TRUSTED</strong><br />
+      α = 0.20 — score is near-stable until evidence accumulates. Benefits are limited to basic TRUSTED tier until confidence reaches MEDIUM.
+    </div>
+
+    <h3>Privilege Matrix</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Benefit</th><th>Buyer Required</th><th>Seller Required</th></tr></thead>
+        <tbody>
+          <tr><td>COD / Search Visibility</td><td>TRUSTED + any confidence</td><td>TRUSTED + any confidence</td></tr>
+          <tr><td>Voucher / Trusted Badge</td><td>TRUSTED + MEDIUM conf</td><td>TRUSTED + MEDIUM conf</td></tr>
+          <tr><td>Free Delivery / Reduced Fee</td><td>ELITE + MEDIUM conf</td><td>ELITE + MEDIUM conf</td></tr>
+          <tr><td>Priority Support / Promo Credits</td><td>ELITE + HIGH conf</td><td>ELITE + HIGH conf</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  
+  <div class="section" id="G">
+    <div class="section-header"><div class="section-num">G</div><h2>ML Plan</h2></div>
+
+    <h3>Why XGBoost</h3>
+    <p>Tabular behavioral data, non-linear feature interactions, mixed numerical inputs, relatively small dataset size, and the need for fast inference at event-time all favor gradient-boosted trees over deep learning. XGBoost is well-understood, produces feature importances natively, and integrates cleanly with scikit-learn pipelines.</p>
+
+    <h3>Synthetic Dataset</h3>
+    <p>Target: ~20,000–50,000 event records. User profiles generated with realistic behavioral distributions:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Buyer Profile</th><th>Seller Profile</th></tr></thead>
+        <tbody>
+          <tr><td>Reliable Buyer</td><td>Excellent Seller</td></tr>
+          <tr><td>Occasional but Reliable Buyer</td><td>Reliable Seller</td></tr>
+          <tr><td>Frequent Returner</td><td>Slow Seller</td></tr>
+          <tr><td>Frequent Canceller</td><td>High Cancellation Seller</td></tr>
+          <tr><td>Poor Payment Behaviour</td><td>Poor Return Handling Seller</td></tr>
+          <tr><td>Mixed Behaviour</td><td>Mixed Seller</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Feature Vector (per user, time-decayed)</h3>
+    <pre>Buyer:   order_completion_rate, return_rate, payment_success_rate,
+         cancellation_rate, referral_count, review_count,
+         recent_order_completion_rate (last 30d), account_age_days,
+         decayed_order_weight, decayed_cancellation_weight
+
+Seller:  fulfillment_rate, late_delivery_rate, avg_rating_received,
+         return_response_rate, return_resolution_rate,
+         seller_cancellation_rate, product_count,
+         recent_fulfillment_rate (last 30d), account_age_days</pre>
+
+    <h3>Target Variable</h3>
+    <p>Binary: <code>is_reliable</code> — did the user complete transactions successfully in the <em>next</em> window (future 30 days) based on historical patterns. Constructed from synthetic behavioral labels to avoid data leakage. Features use only events <em>before</em> the target window.</p>
+
+    <h3>Train / Validation / Test Split (Chronological)</h3>
+    <div class="formula">Training set   → transactions from months 1–8   (~70%)
+Validation set → transactions from months 9–10  (~15%)
+Test set       → transactions from months 11–12 (~15%)
+
+    <h3>Evaluation Metrics</h3>
+    <ul>
+      <li>Precision, Recall, F1 (primary for imbalanced dataset)</li>
+      <li>ROC-AUC</li>
+      <li>Confusion matrix</li>
+      <li>Feature importance plot (XGBoost native)</li>
+      <li>Optional: SHAP summary plot</li>
+    </ul>
+
+    <h3>Model Deployment</h3>
+    <div class="callout warn">
+      <strong>Offline training only.</strong> Model is trained once on the synthetic dataset and persisted via <code>joblib</code>. FastAPI loads the saved model at startup. Retraining is a future enhancement — no retraining per user event in the prototype.
+    </div>
+
+    <h3>Backend Integration Flow</h3>
+    <pre>Event arrives → EventService.record(event)
+             → FeatureEngine.update_features(user_id)   # time-decay applied
+             → model.predict_proba(feature_vector)      # XGBoost
+             → dim_scores = transform_proba_to_0_100()
+             → TrustEngine.calculate(dim_scores, prev_score, event_count)
+             → ConfidenceService.evaluate(event_count)
+             → PrivilegeEngine.recalculate(score, confidence, tier)
+             → ScoreHistory.append(change, reason)
+             → ExplanationService.generate_reasons(delta_features)
+             → Return updated TrustGrid state</pre>
+  </div>
+
+  
+  <div class="section" id="H">
+    <div class="section-header"><div class="section-num">H</div><h2>UI Plan &amp; Pages</h2></div>
+
+    <div class="page-cols">
+      <div class="page-group">
+        <h4>Public</h4>
+        <ul>
+          <li>Home (hero + how it works + CTAs)</li>
+          <li>About TrustGrid</li>
+          <li>Login</li>
+          <li>Register (Buyer or Seller)</li>
+        </ul>
+      </div>
+      <div class="page-group">
+        <h4>Buyer</h4>
+        <ul>
+          <li>Buyer Dashboard (marketplace overview)</li>
+          <li>Products (browse / search)</li>
+          <li>Product Detail</li>
+          <li>Cart &amp; Checkout (simulated payment)</li>
+          <li>My Orders</li>
+          <li>Return Request</li>
+          <li>TrustGrid Dashboard ⭐</li>
+          <li>Profile</li>
+        </ul>
+      </div>
+      <div class="page-group">
+        <h4>Seller</h4>
+        <ul>
+          <li>Seller Dashboard</li>
+          <li>My Products</li>
+          <li>Add / Edit Product</li>
+          <li>Orders (manage + ship)</li>
+          <li>Return Requests</li>
+          <li>TrustGrid Dashboard ⭐</li>
+          <li>Profile</li>
+        </ul>
+      </div>
+      <div class="page-group">
+        <h4>Admin</h4>
+        <ul>
+          <li>Admin Dashboard (analytics)</li>
+          <li>User List (with scores)</li>
+          <li>Trust Distribution Chart</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Reusable Components</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Component</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>TrustScoreCard</code></td><td>Large score display with gauge, tier badge, confidence badge</td></tr>
+          <tr><td><code>ScoreBreakdown</code></td><td>5-dimension progress bars or radar chart</td></tr>
+          <tr><td><code>ScoreHistoryChart</code></td><td>Recharts line chart of score over time</td></tr>
+          <tr><td><code>RecentChanges</code></td><td>+/- change list with plain-language reasons</td></tr>
+          <tr><td><code>BenefitCard</code></td><td>Active/locked privilege display</td></tr>
+          <tr><td><code>ConfidenceBadge</code></td><td>LOW / MEDIUM / HIGH indicator</td></tr>
+          <tr><td><code>TierBadge</code></td><td>RESTRICTED / STANDARD / TRUSTED / ELITE</td></tr>
+          <tr><td><code>ImproveScoreCard</code></td><td>Rule-based recommendations from weakest dimension</td></tr>
+          <tr><td><code>ProductCard</code></td><td>Product thumbnail + price + seller badge</td></tr>
+          <tr><td><code>OrderCard</code></td><td>Order summary + status + action buttons</td></tr>
+          <tr><td><code>Navbar</code> / <code>Sidebar</code></td><td>Navigation, role-aware</td></tr>
+          <tr><td><code>LoadingState</code> / <code>ErrorState</code></td><td>Consistent loading/error feedback</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>TrustGrid Dashboard Visual Hierarchy</h3>
+    <pre>┌──────────────────────────────────────────────────────────┐
+│  [824]  / 1000     [ELITE]    [HIGH CONFIDENCE]          │
+│  Score gauge / ring (visually dominant)                   │
+├──────────────────────────────────────────────────────────┤
+│  Score Breakdown                                          │
+│  Order Reliability      ████████████░  92 / 100          │
+│  Return Behaviour       ██████████░░░  81 / 100          │
+│  Payment Reliability    █████████████  95 / 100          │
+│  Cancellation Behaviour ████████████░  84 / 100          │
+│  Platform Engagement    ████████████░  88 / 100          │
+├──────────────────────────────────────────────────────────┤
+│  Recent Changes          │  Score History (line chart)   │
+│  ↑ +18 Successful orders │                               │
+│  ↑ +8  Referral          │  ~~~___/‾‾‾‾‾‾‾‾‾            │
+│  ↓ -6  Cancellation      │                               │
+├──────────────────────────────────────────────────────────┤
+│  Your Benefits                                            │
+│  ✓ COD   ✓ ₹150 Voucher  ✓ Free Delivery  ✓ Priority    │
+├──────────────────────────────────────────────────────────┤
+│  Improve Your Score                                       │
+│  ● Keep cancellation rate low                            │
+└──────────────────────────────────────────────────────────┘</pre>
+  </div>
+
+  
+  <div class="section" id="I">
+    <div class="section-header"><div class="section-num">I</div><h2>Project Folder Structure</h2></div>
+    <pre>TrustGrid/
+├── frontend/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── trust/          # TrustScoreCard, ScoreBreakdown, etc.
+│   │   │   ├── marketplace/    # ProductCard, OrderCard, etc.
+│   │   │   └── common/         # Navbar, Sidebar, LoadingState, etc.
+│   │   ├── pages/
+│   │   │   ├── public/         # Home, About, Login, Register
+│   │   │   ├── buyer/          # Dashboard, Products, Orders, TrustGrid, etc.
+│   │   │   ├── seller/         # Dashboard, Products, Orders, TrustGrid, etc.
+│   │   │   └── admin/          # Analytics, Users
+│   │   ├── layouts/            # BuyerLayout, SellerLayout, PublicLayout
+│   │   ├── services/           # api.js, authService.js, trustService.js
+│   │   ├── hooks/              # useAuth, useTrust, useOrders
+│   │   ├── utils/              # formatScore, formatDate, tierColors
+│   │   └── App.jsx
+│   ├── index.html
+│   ├── vite.config.js
+│   └── package.json
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py             # FastAPI app entry point
+│   │   ├── api/
+│   │   │   ├── auth.py
+│   │   │   ├── users.py
+│   │   │   ├── products.py
+│   │   │   ├── orders.py
+│   │   │   ├── trust.py
+│   │   │   └── admin.py
+│   │   ├── models/             # SQLAlchemy ORM models
+│   │   ├── schemas/            # Pydantic request/response schemas
+│   │   ├── services/           # auth_service, user_service, order_service
+│   │   ├── core/               # config.py, security.py, dependencies.py
+│   │   ├── db/                 # session.py, base.py
+│   │   └── trustgrid/
+│   │       ├── event_service.py
+│   │       ├── feature_engine.py
+│   │       ├── trust_engine.py
+│   │       ├── privilege_engine.py
+│   │       ├── confidence_service.py
+│   │       └── explanation_service.py
+│   └── requirements.txt
+│
+├── ml/
+│   ├── dataset/
+│   │   └── generate_dataset.py     # Synthetic data generator
+│   ├── preprocessing/
+│   │   └── feature_builder.py
+│   ├── training/
+│   │   └── train_xgboost.py
+│   ├── evaluation/
+│   │   └── evaluate_model.py
+│   └── models/
+│       ├── buyer_model.pkl         # Saved XGBoost (buyer)
+│       └── seller_model.pkl        # Saved XGBoost (seller)
+│
+├── database/
+│   ├── schema/
+│   │   └── init.sql
+│   └── seed/
+│       └── seed_data.py            # Demo buyers, sellers, orders, scores
+│
+├── docs/
+│   └── README.md
+│
+├── .env.example
+├── .gitignore
+└── README.md</pre>
+  </div>
+
+  
+  <div class="section" id="J">
+    <div class="section-header"><div class="section-num">J</div><h2>Development Roadmap</h2></div>
+    <div class="phase-list">
+      <div class="phase-item"><span class="phase-num">Phase 1</span><div class="phase-content"><h4>Project Setup</h4><p>Init Git repo · create folder structure · set up Vite + React frontend · init FastAPI backend · create .env.example · configure .gitignore</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 2</span><div class="phase-content"><h4>Database + Authentication</h4><p>PostgreSQL schema (all tables) · SQLAlchemy models · Pydantic schemas · bcrypt password hashing · JWT auth · /auth/register (auto BUY-/SEL- ID) · /auth/login · /auth/me</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 3</span><div class="phase-content"><h4>Marketplace Basics</h4><p>Products CRUD · Orders (place, cancel, ship, complete) · Simulated payment · Returns · Reviews · Referrals · Basic buyer &amp; seller pages</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 4</span><div class="phase-content"><h4>Event System</h4><p>Define all trust_events · EventService · Automatic event firing on marketplace actions · Event storage with timestamps</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 5</span><div class="phase-content"><h4>Feature Engine</h4><p>Aggregate events → feature vectors · Implement exponential time decay (λ = ln2/90) · Unit test decay calculations · Store in behavior_features</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 6</span><div class="phase-content"><h4>Trust Score Engine</h4><p>Rule-based dimension scores (pre-ML) · Weighted formula · 0–1000 scaling · Score smoothing (α-blending) · Clamping · TrustEngine service</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 7</span><div class="phase-content"><h4>Confidence + Tiers</h4><p>ConfidenceService (event count thresholds) · Tier determination · New user initial state (700 / LOW) · Unit tests for boundary conditions</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 8</span><div class="phase-content"><h4>Privilege Engine</h4><p>Centralized PrivilegeEngine · Score + Confidence + Tier → benefit eligibility · Buyer benefits · Seller benefits · /trust/benefits endpoint</p></div></div>
+      <div class="phase-item"><span class="phase-num ml">Phase 9</span><div class="phase-content"><h4>Synthetic ML Dataset</h4><p>generate_dataset.py · 6 buyer profiles + 6 seller profiles · ~30,000 records · Realistic distributions · Timestamps for chronological split</p></div></div>
+      <div class="phase-item"><span class="phase-num ml">Phase 10</span><div class="phase-content"><h4>XGBoost Model</h4><p>Feature preprocessing · Chronological train/val/test split · Train buyer_model + seller_model · Evaluate (F1, ROC-AUC, confusion matrix) · Feature importance · Persist with joblib</p></div></div>
+      <div class="phase-item"><span class="phase-num ml">Phase 11</span><div class="phase-content"><h4>Integrate ML with TrustGrid</h4><p>Load models in FastAPI startup · Replace rule-based dimension scores with ML-predicted reliability scores · End-to-end event → score flow</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 12</span><div class="phase-content"><h4>Explainability</h4><p>ExplanationService · Map feature deltas → plain-language reasons · RecentChanges UI component · Score history storage · "Improve your score" rule-based recommendations</p></div></div>
+      <div class="phase-item"><span class="phase-num ui">Phase 13</span><div class="phase-content"><h4>TrustGrid Dashboards</h4><p>Buyer TrustGrid dashboard (score card, breakdown, history chart, benefits, recommendations) · Seller TrustGrid dashboard · All TrustGrid API endpoints live</p></div></div>
+      <div class="phase-item"><span class="phase-num ui">Phase 14</span><div class="phase-content"><h4>Admin Dashboard</h4><p>Analytics endpoint · Score distribution chart · User list with scores · Confidence distribution · Recent score changes</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 15</span><div class="phase-content"><h4>Seed Data</h4><p>Demo buyers (scores: 910, 735, 580) · Demo sellers (scores: 925, 680) · Pre-loaded orders, events, score history · System looks populated on first load</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 16</span><div class="phase-content"><h4>Testing</h4><p>Unit tests: score calc, boundary conditions, time decay, confidence, tier, privilege · API authorization tests · Score stability tests · Edge case: 0, 1000, new user, heavy user</p></div></div>
+      <div class="phase-item"><span class="phase-num ui">Phase 17</span><div class="phase-content"><h4>UI Polish</h4><p>Responsive layouts · Consistent typography &amp; spacing · Score gauge visualization · Smooth badge transitions · Home &amp; About pages · Error &amp; loading states · Final CSS pass</p></div></div>
+      <div class="phase-item"><span class="phase-num">Phase 18</span><div class="phase-content"><h4>Documentation &amp; Demo</h4><p>README (setup, run, architecture) · Inline code comments · Academic doc sections (abstract → future scope) · Demo scenario walkthrough · Final presentation prep</p></div></div>
+    </div>
+
+    <div class="callout warn" style="margin-top:20px">
+      <strong>Rule:</strong> Do not advance to the next phase until the current phase is functional and tested. Each phase delivers a working vertical slice.
+    </div>
+  </div>
+
+  <hr />
+  <div class="callout success">
+    <strong>Ready to begin.</strong> When you say <strong>"Start Phase 1"</strong>, the first deliverable will be: complete folder scaffold, <code>package.json</code> / <code>vite.config.js</code>, FastAPI <code>main.py</code>, <code>requirements.txt</code>, <code>.env.example</code>, and <code>.gitignore</code> — all runnable with exact commands.
+  </div>
+
+  <div class="doc-footer">
+    <p>TrustGrid Master Specification  ·  Academic Prototype  ·  Version 1.0</p>
+    <p style="margin-top:6px">Made with IBM Bob</p>
+  </div>
+
+</div>
+</div></body>
+</html>

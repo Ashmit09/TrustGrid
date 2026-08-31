@@ -1,0 +1,114 @@
+/* Shared dashboard styles used across buyer + seller pages */
+
+.page-title    { font-size: 24px; font-weight: 800; letter-spacing: -0.4px; }
+.page-subtitle { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+/* Trust summary banner */
+.trust-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
+  border: 1px solid #c7d2fe;
+}
+.trust-summary__score-block { display: flex; align-items: baseline; gap: 4px; }
+.trust-summary__num   { font-size: 52px; font-weight: 800; color: var(--color-primary); line-height: 1; }
+.trust-summary__denom { font-size: 18px; font-weight: 600; color: var(--text-muted); }
+.trust-summary__label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+.trust-summary__badges { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+.stat-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-card__value { font-size: 22px; font-weight: 800; color: var(--text); font-family: var(--font-mono); }
+.stat-card__label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+/* Section cards */
+.section-card { padding: 0; overflow: hidden; }
+.section-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.section-card__header h2 { font-size: 15px; font-weight: 700; }
+
+/* Order list */
+.order-list { display: flex; flex-direction: column; }
+.order-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.order-row:last-child { border-bottom: none; }
+.order-row__id     { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); flex: 1; }
+.order-row__amount { font-weight: 700; color: var(--text); min-width: 80px; }
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.status-pending   { background: #fef3c7; color: #92400e; }
+.status-paid      { background: #dbeafe; color: #1d4ed8; }
+.status-shipped   { background: #ede9fe; color: #6d28d9; }
+.status-completed { background: #dcfce7; color: #166534; }
+.status-cancelled { background: #fee2e2; color: #b91c1c; }
+.status-returned  { background: #f3f4f6; color: #374151; }
+
+/* Empty state */
+.empty-state {
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Product grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.product-card { padding: 0; overflow: hidden; cursor: pointer; transition: box-shadow var(--transition); }
+.product-card:hover { box-shadow: var(--shadow-md); }
+.product-card__img { width: 100%; height: 160px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.product-card__body { padding: 14px 16px; }
+.product-card__title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.product-card__category { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.product-card__footer { display: flex; align-items: center; justify-content: space-between; }
+.product-card__price { font-size: 16px; font-weight: 800; color: var(--color-primary); }
+.product-card__stock { font-size: 11px; color: var(--text-muted); }
+
+/* Form pages */
+.form-page { max-width: 520px; }
+.form-page .card { padding: 28px; }
+.form-page h1 { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
+.form-actions { display: flex; gap: 10px; align-items: center; margin-top: 8px; }

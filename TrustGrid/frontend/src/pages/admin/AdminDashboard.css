@@ -1,0 +1,480 @@
+/* ============================================================
+   Admin Dashboard Styles
+   ============================================================ */
+
+.admin-layout {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.admin-main {
+  padding: var(--space-8) 0;
+}
+
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.admin-loading,
+.admin-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.admin-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.admin-role-badge {
+  background: #f5f3ff;
+  color: var(--color-accent);
+  border: 1px solid #ddd6fe;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* ── Tabs ───────────────────────────────────────────────── */
+.admin-tabs {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-tab {
+  padding: 8px 16px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.admin-tab:hover {
+  color: var(--text);
+}
+
+.admin-tab--active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* ── Stat cards ─────────────────────────────────────────── */
+.admin-stats-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-4);
+}
+
+.admin-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-stat-card__value {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.admin-stat-card__label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-stat-card__sub {
+  font-size: var(--text-xs);
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+/* ── Grid ───────────────────────────────────────────────── */
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+/* ── Cards ──────────────────────────────────────────────── */
+.admin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-card--wide {
+  grid-column: 1 / -1;
+}
+
+.admin-card--full {
+  width: 100%;
+}
+
+.admin-card__title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-4);
+}
+
+/* ── Tier bars ──────────────────────────────────────────── */
+.admin-tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-tier-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.admin-tier-row__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 130px;
+}
+
+.admin-tier-row__count {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.admin-tier-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--bg);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.admin-tier-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.8s ease;
+}
+
+.admin-tier-row__pct {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  min-width: 44px;
+  text-align: right;
+}
+
+/* ── Confidence ─────────────────────────────────────────── */
+.admin-conf-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-conf-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-conf-count {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* ── Event list ─────────────────────────────────────────── */
+.admin-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.admin-event-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.admin-event-type {
+  font-size: var(--text-sm);
+  color: var(--text);
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+.admin-event-count {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* ── Score changes ──────────────────────────────────────── */
+.admin-changes-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.admin-change-row {
+  display: grid;
+  grid-template-columns: 130px 60px 60px 1fr 80px;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+}
+
+.admin-change-uid {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.admin-change-delta {
+  font-weight: 700;
+  text-align: center;
+}
+
+.admin-change-delta--pos { color: var(--success); }
+.admin-change-delta--neg { color: var(--error); }
+
+.admin-change-score {
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+
+.admin-change-reason {
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-change-time {
+  font-size: var(--text-xs);
+  color: var(--text-light);
+  text-align: right;
+}
+
+/* ── Users table ────────────────────────────────────────── */
+.admin-users-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.admin-users-table th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-users-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.admin-users-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-uid {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.admin-role-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.admin-role-pill--buyer  { background: #eff6ff; color: #1e40af; }
+.admin-role-pill--seller { background: #f5f3ff; color: #6d28d9; }
+.admin-role-pill--admin  { background: #fef3c7; color: #92400e; }
+
+/* ── Event grid ─────────────────────────────────────────── */
+.admin-event-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+.admin-event-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+  text-align: center;
+}
+
+.admin-event-card__count {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.admin-event-card__type {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+
+/* ── Trust Distribution Chart ────────────────────────────── */
+.admin-dist-section {
+  margin-bottom: var(--space-4);
+}
+
+.admin-dist-section__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.admin-dist-chart-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-dist-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  height: 140px;         /* chart area height */
+  padding-bottom: 4px;
+}
+
+.admin-dist-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.admin-dist-bar {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  cursor: default;
+  transition: opacity 0.15s;
+}
+
+.admin-dist-bar:hover {
+  opacity: 0.8;
+}
+
+.admin-dist-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.admin-dist-label {
+  font-size: 9px;
+  color: var(--text-light);
+  text-align: center;
+  white-space: nowrap;
+  transform: rotate(-30deg);
+  transform-origin: center top;
+  margin-top: 4px;
+}
+
+.admin-dist-legend {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .admin-stats-row { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .admin-grid { grid-template-columns: 1fr; }
+  .admin-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .admin-event-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-change-row { grid-template-columns: 100px 50px 50px 1fr; }
+  .admin-change-reason { display: none; }
+}

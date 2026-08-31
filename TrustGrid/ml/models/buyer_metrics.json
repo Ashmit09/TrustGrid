@@ -1,0 +1,36 @@
+{
+  "model": "buyer_reliability_xgboost",
+  "features": [
+    "order_completion_rate",
+    "return_rate",
+    "payment_success_rate",
+    "cancellation_rate",
+    "referral_count",
+    "review_count",
+    "total_orders",
+    "completed_orders",
+    "total_cancellations",
+    "total_returns",
+    "decayed_event_weight"
+  ],
+  "best_iteration": 299,
+  "val_metrics": {
+    "accuracy": 0.9956,
+    "precision": 1.0,
+    "recall": 0.9887,
+    "f1": 0.9943,
+    "roc_auc": 0.9998
+  },
+  "test_metrics": {
+    "accuracy": 0.9822,
+    "precision": 0.9784,
+    "recall": 0.9927,
+    "f1": 0.9855,
+    "roc_auc": 0.9981
+  },
+  "class_balance": {
+    "neg": 1066,
+    "pos": 1034
+  },
+  "scale_pos_weight": 1.0309
+}

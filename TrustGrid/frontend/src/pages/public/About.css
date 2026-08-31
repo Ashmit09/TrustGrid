@@ -1,0 +1,13 @@
+.about-content { padding: 48px 0 80px; }
+.about-hero { text-align: center; margin-bottom: 40px; }
+.about-hero h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 8px; }
+.about-hero p  { font-size: 16px; color: var(--text-muted); }
+.about-sections { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+.about-section  { padding: 24px 28px; }
+.about-section h2 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.about-section p  { color: var(--text-muted); line-height: 1.7; }
+.about-tiers { padding: 24px 28px; }
+.about-tiers h2 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+.tier-row { display: flex; flex-wrap: wrap; gap: 16px; }
+.tier-item { display: flex; align-items: center; gap: 10px; }
+.tier-range { font-size: 13px; color: var(--text-muted); font-weight: 500; }

@@ -1,0 +1,199 @@
+/* ── WhatIf (Score Simulator) Panel ───────────────────────────────────────── */
+
+.whatif-panel {
+  /* inherits .tg-card, full-width via .tg-full */
+}
+
+.whatif-desc {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-5) 0;
+  line-height: 1.6;
+}
+
+/* Input row */
+.whatif-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.whatif-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 140px;
+}
+
+.whatif-input-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Spinner control: − [count] + */
+.whatif-spinner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.whatif-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.whatif-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--color-primary);
+}
+
+.whatif-count {
+  font-size: var(--text-base);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  min-width: 28px;
+  text-align: center;
+  color: var(--text);
+}
+
+/* Run button */
+.whatif-run-btn {
+  margin-bottom: var(--space-5);
+}
+
+.whatif-error {
+  color: var(--error);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3);
+}
+
+/* Results area */
+.whatif-result {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-5);
+  margin-top: var(--space-2);
+}
+
+.whatif-result__scores {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.whatif-score-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius);
+  min-width: 120px;
+}
+
+.whatif-score-box--current {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.whatif-score-box--projected {
+  background: var(--color-primary-light, #eff6ff);
+  border: 1px solid var(--color-primary);
+}
+
+.whatif-score-box__label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.whatif-score-box__value {
+  font-size: 32px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  line-height: 1;
+  color: var(--text);
+}
+
+.whatif-arrow {
+  font-size: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-muted);
+}
+
+.whatif-delta {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.whatif-delta--pos { color: var(--success); }
+.whatif-delta--neg { color: var(--error); }
+
+.whatif-tier-change {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.whatif-next-tier {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.whatif-next-tier--reached {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.whatif-dims {
+  margin-top: var(--space-4);
+}
+
+.whatif-dims__title {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+@media (max-width: 600px) {
+  .whatif-inputs {
+    flex-direction: column;
+  }
+  .whatif-result__scores {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

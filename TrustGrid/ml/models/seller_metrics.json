@@ -1,0 +1,37 @@
+{
+  "model": "seller_reliability_xgboost",
+  "features": [
+    "fulfillment_rate",
+    "late_delivery_rate",
+    "avg_rating_received",
+    "return_response_rate",
+    "products_listed",
+    "fulfilled_orders",
+    "seller_cancellations",
+    "on_time_deliveries",
+    "late_deliveries",
+    "return_requests_received",
+    "returns_responded",
+    "decayed_event_weight"
+  ],
+  "best_iteration": 144,
+  "val_metrics": {
+    "accuracy": 0.9689,
+    "precision": 0.974,
+    "recall": 0.9804,
+    "f1": 0.9772,
+    "roc_auc": 0.9937
+  },
+  "test_metrics": {
+    "accuracy": 0.9956,
+    "precision": 1.0,
+    "recall": 0.9953,
+    "f1": 0.9977,
+    "roc_auc": 1.0
+  },
+  "class_balance": {
+    "neg": 763,
+    "pos": 287
+  },
+  "scale_pos_weight": 2.6585
+}

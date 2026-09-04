@@ -37,3 +37,4 @@ class User(Base):
     trust_events    = relationship("TrustEvent",       back_populates="user")
     behavior_features = relationship("BehaviorFeatures", back_populates="user", uselist=False)
     privileges      = relationship("Privilege",        back_populates="user")
+    anomaly_flags   = relationship("AnomalyFlag",      back_populates="user")

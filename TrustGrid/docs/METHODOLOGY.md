@@ -118,6 +118,9 @@ Only the user associated with the triggering event has their features and score 
 - See tier distributions for buyers and sellers
 - Monitor confidence distribution
 - Inspect recent score changes
+- Open a full trust profile modal for any user (score, sparkline, dimension breakdown)
+- Run automated anomaly detection scans and resolve open flags
+- Download any user's complete score history as a CSV export
 
 ---
 
@@ -128,7 +131,7 @@ Only the user associated with the triggering event has their features and score 
 | Security | Bcrypt password hashing, JWT auth, HTTPS-ready |
 | Privacy | No sensitive financial data stored; simulated payments only |
 | Isolation | Only affected user's score is recalculated per event |
-| Testability | 230 automated tests, SQLite for test isolation |
+| Testability | 277 automated tests, SQLite for test isolation |
 | Explainability | Every score change has a human-readable reason |
 | Fairness | No demographic attributes used in scoring |
 | Correctness | Score clamped to [0, 1000], tier boundaries deterministic |

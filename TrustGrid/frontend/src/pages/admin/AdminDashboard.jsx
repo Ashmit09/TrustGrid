@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../../components/common/Navbar'
@@ -86,15 +86,180 @@ function DistributionChart({ labels, counts, color }) {
 }
 
 
+// ── User Detail Modal ─────────────────────────────────────────────────────────
+
+function MiniSparkline({ history }) {
+  if (!history || history.length === 0) return <span style={{ color: 'var(--text-light)', fontSize: 11 }}>No history</span>
+  const scores = [...history].reverse().map(h => h.new_score)
+  const min = Math.max(0,    Math.min(...scores) - 50)
+  const max = Math.min(1000, Math.max(...scores) + 50)
+  const range = max - min || 100
+  const W = 200, H = 48, PAD = 4
+  const pts = scores.map((s, i) => {
+    const x = PAD + (i / Math.max(scores.length - 1, 1)) * (W - PAD * 2)
+    const y = H - PAD - ((s - min) / range) * (H - PAD * 2)
+    return `${x},${y}`
+  }).join(' ')
+  const last  = scores[scores.length - 1]
+  const first = scores[0]
+  const up    = last >= first
+  return (
+    <svg width={W} height={H} style={{ display: 'block' }}>
+      <polyline points={pts} fill="none" stroke={up ? '#16a34a' : '#dc2626'} strokeWidth="2" strokeLinejoin="round" />
+      {scores.map((s, i) => {
+        const x = PAD + (i / Math.max(scores.length - 1, 1)) * (W - PAD * 2)
+        const y = H - PAD - ((s - min) / range) * (H - PAD * 2)
+        return <circle key={i} cx={x} cy={y} r={2.5} fill={up ? '#16a34a' : '#dc2626'} />
+      })}
+    </svg>
+  )
+}
+
+function ModalDimBar({ label, value }) {
+  const pct = Math.min(100, Math.max(0, value))
+  const color = pct >= 75 ? '#16a34a' : pct >= 50 ? '#f59e0b' : '#dc2626'
+  return (
+    <div className="modal-dim-row">
+      <span className="modal-dim-label">{label}</span>
+      <div className="modal-dim-track">
+        <div className="modal-dim-fill" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <span className="modal-dim-val">{value}</span>
+    </div>
+  )
+}
+
+const DIM_LABELS_BUYER = {
+  order_reliability:      'Order Reliability',
+  return_behaviour:       'Return Behaviour',
+  payment_reliability:    'Payment Reliability',
+  cancellation_behaviour: 'Cancellation',
+  platform_engagement:    'Engagement',
+}
+const DIM_LABELS_SELLER = {
+  fulfillment_rate:       'Fulfillment',
+  delivery_timeliness:    'Delivery',
+  rating_quality:         'Rating Quality',
+  return_handling:        'Return Handling',
+  catalog_quality:        'Catalog Quality',
+}
+
+function UserDetailModal({ userId, onClose }) {
+  const [profile,   setProfile]   = useState(null)
+  const [history,   setHistory]   = useState([])
+  const [breakdown, setBreakdown] = useState(null)
+  const [loading,   setLoading]   = useState(true)
+
+  useEffect(() => {
+    if (!userId) return
+    Promise.all([
+      api.get(`/trust/${userId}`).then(r => r.data).catch(() => null),
+      api.get(`/trust/${userId}/history?limit=30`).then(r => r.data).catch(() => []),
+      api.get(`/trust/${userId}/breakdown`).then(r => r.data).catch(() => null),
+    ]).then(([p, h, b]) => {
+      setProfile(p)
+      setHistory(h)
+      setBreakdown(b)
+      setLoading(false)
+    })
+  }, [userId])
+
+  if (!userId) return null
+
+  const dimLabels = profile?.role === 'seller' ? DIM_LABELS_SELLER : DIM_LABELS_BUYER
+  const dims = breakdown?.dimensions || {}
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
+        <div className="modal-header">
+          <div>
+            <div className="modal-uid">{userId}</div>
+            {profile && (
+              <div className="modal-name">{profile.name}</div>
+            )}
+          </div>
+          {profile && (
+            <div className="modal-badges">
+              <span className={`tier-badge tier-${profile.tier}`}>{profile.tier}</span>
+              <span className={`confidence-badge conf-${profile.confidence}`}>{profile.confidence}</span>
+              <span className={`admin-role-pill admin-role-pill--${profile.role}`}>{profile.role}</span>
+            </div>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="modal-loading">Loading profile…</div>
+        ) : !profile ? (
+          <div className="modal-loading" style={{ color: 'var(--error)' }}>Could not load profile.</div>
+        ) : (
+          <>
+            {/* Score + sparkline */}
+            <div className="modal-score-row">
+              <div className="modal-score-block">
+                <div className="modal-score-val">{profile.trust_score}</div>
+                <div className="modal-score-label">Trust Score</div>
+              </div>
+              <div className="modal-sparkline-block">
+                <div className="modal-sparkline-label">Score History ({history.length} entries)</div>
+                <MiniSparkline history={history} />
+              </div>
+            </div>
+
+            {/* Dimension breakdown */}
+            {breakdown && Object.keys(dims).length > 0 && (
+              <div className="modal-section">
+                <div className="modal-section-title">Dimension Breakdown</div>
+                {Object.entries(dimLabels).map(([key, label]) =>
+                  dims[key] != null ? (
+                    <ModalDimBar key={key} label={label} value={Math.round(dims[key])} />
+                  ) : null
+                )}
+              </div>
+            )}
+
+            {/* Recent history */}
+            {history.length > 0 && (
+              <div className="modal-section">
+                <div className="modal-section-title">Recent Score Changes</div>
+                <div className="modal-history-list">
+                  {history.slice(0, 8).map((h, i) => {
+                    const pos = h.score_change >= 0
+                    return (
+                      <div key={i} className="modal-history-row">
+                        <span className={`modal-history-delta ${pos ? 'modal-delta-pos' : 'modal-delta-neg'}`}>
+                          {pos ? '+' : ''}{h.score_change}
+                        </span>
+                        <span className="modal-history-score">{h.new_score}</span>
+                        <span className="modal-history-reason">{h.reason || h.event_type || '—'}</span>
+                        <span className="modal-history-time">{timeAgo(h.created_at)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+
 export default function AdminDashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [analytics, setAnalytics] = useState(null)
-  const [users,     setUsers]     = useState([])
-  const [loading,   setLoading]   = useState(true)
-  const [error,     setError]     = useState(null)
+  const [analytics,    setAnalytics]    = useState(null)
+  const [users,        setUsers]        = useState([])
+  const [loading,      setLoading]      = useState(true)
+  const [error,        setError]        = useState(null)
   const [tab,          setTab]          = useState('overview')
   const [distribution, setDistribution] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [anomalies,    setAnomalies]    = useState([])
+  const [scanning,     setScanning]     = useState(false)
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
@@ -103,13 +268,15 @@ export default function AdminDashboard() {
     }
     Promise.all([
       api.get('/admin/analytics').then(r => r.data),
-      api.get('/admin/users?limit=20').then(r => r.data),
+      api.get('/admin/users?limit=50').then(r => r.data),
       api.get('/admin/trust-distribution').then(r => r.data),
+      api.get('/admin/anomalies?resolved=false&limit=50').then(r => r.data).catch(() => ({ anomalies: [] })),
     ])
-      .then(([a, u, d]) => {
+      .then(([a, u, d, an]) => {
         setAnalytics(a)
         setUsers(u.users || [])
         setDistribution(d)
+        setAnomalies(an.anomalies || [])
         setLoading(false)
       })
       .catch(() => {
@@ -165,13 +332,17 @@ export default function AdminDashboard() {
 
           {/* ── Tab bar ── */}
           <div className="admin-tabs">
-            {['overview', 'distribution', 'users', 'events'].map(t => (
+            {['overview', 'distribution', 'users', 'events', 'alerts'].map(t => (
               <button
                 key={t}
                 className={`admin-tab${tab === t ? ' admin-tab--active' : ''}`}
                 onClick={() => setTab(t)}
               >
-                {t.charAt(0).toUpperCase() + t.slice(1)}
+                {t === 'alerts' ? (
+                  <>Alerts{anomalies.length > 0 && <span className="admin-tab-badge">{anomalies.length}</span>}</>
+                ) : (
+                  t.charAt(0).toUpperCase() + t.slice(1)
+                )}
               </button>
             ))}
           </div>
@@ -329,7 +500,12 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody>
                     {users.map(u => (
-                      <tr key={u.user_id}>
+                      <tr
+                        key={u.user_id}
+                        className="admin-users-table__row--clickable"
+                        onClick={() => setSelectedUser(u.user_id)}
+                        title="Click to view full profile"
+                      >
                         <td><span className="admin-uid">{u.user_id}</span></td>
                         <td>{u.name}</td>
                         <td style={{ color: 'var(--text-muted)' }}>{u.email}</td>
@@ -364,8 +540,70 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {/* ── Alerts Tab ── */}
+          {tab === 'alerts' && (
+            <div className="admin-card admin-card--full">
+              <div className="admin-card__title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>Anomaly Alerts — Open Flags</span>
+                <button
+                  className="btn btn-primary"
+                  style={{ fontSize: '12px', padding: '5px 14px' }}
+                  disabled={scanning}
+                  onClick={async () => {
+                    setScanning(true)
+                    try {
+                      await api.post('/admin/anomalies/scan')
+                      const res = await api.get('/admin/anomalies?resolved=false&limit=50')
+                      setAnomalies(res.data.anomalies || [])
+                    } catch { /* ignore */ }
+                    finally { setScanning(false) }
+                  }}
+                >
+                  {scanning ? 'Scanning…' : '🔍 Run Scan Now'}
+                </button>
+              </div>
+              {anomalies.length === 0 ? (
+                <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', padding: 'var(--space-4) 0' }}>
+                  No open anomaly flags. Click "Run Scan Now" to check.
+                </p>
+              ) : (
+                <div className="admin-anomaly-list">
+                  {anomalies.map(flag => (
+                    <div key={flag.flag_id} className={`admin-anomaly-row admin-anomaly-row--${flag.severity.toLowerCase()}`}>
+                      <div className="admin-anomaly-meta">
+                        <span className={`admin-anomaly-severity admin-anomaly-sev--${flag.severity}`}>{flag.severity}</span>
+                        <span className="admin-anomaly-type">{flag.flag_type.replace(/_/g, ' ')}</span>
+                        <span className="admin-change-uid">{flag.user_id}</span>
+                      </div>
+                      <div className="admin-anomaly-desc">{flag.description}</div>
+                      <div className="admin-anomaly-actions">
+                        <span className="admin-change-time">{timeAgo(flag.created_at)}</span>
+                        <button
+                          className="admin-anomaly-resolve-btn"
+                          onClick={async () => {
+                            try {
+                              await api.patch(`/admin/anomalies/${flag.flag_id}/resolve`)
+                              setAnomalies(prev => prev.filter(f => f.flag_id !== flag.flag_id))
+                            } catch { /* ignore */ }
+                          }}
+                        >
+                          Resolve
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
       </main>
+
+      {/* User Detail Modal */}
+      {selectedUser && (
+        <UserDetailModal userId={selectedUser} onClose={() => setSelectedUser(null)} />
+      )}
     </div>
   )
 }

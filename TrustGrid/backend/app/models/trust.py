@@ -1,6 +1,6 @@
 """
 TrustGrid-specific ORM models:
-  TrustEvent, BehaviorFeatures, TrustScore, ScoreHistory, Privilege
+  TrustEvent, BehaviorFeatures, TrustScore, ScoreHistory, Privilege, AnomalyFlag
 """
 import enum
 from datetime import datetime, timezone
@@ -132,3 +132,27 @@ class Privilege(Base):
                             onupdate=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="privileges")
+
+
+class AnomalyFlag(Base):
+    """
+    Automatically generated alert when a user's trust score changes
+    suspiciously (e.g., >150 pts drop within 24h, or a rapid surge of
+    cancellations).  Flags are created by the anomaly detection service
+    and surfaced in the Admin Alerts tab.
+    """
+    __tablename__ = "anomaly_flags"
+
+    id            = Column(Integer, primary_key=True, index=True)
+    flag_id       = Column(String(36), unique=True, nullable=False, index=True)
+    user_id       = Column(String(20), ForeignKey("users.user_id"), nullable=False, index=True)
+    flag_type     = Column(String(60), nullable=False)   # e.g. SCORE_DROP | RAPID_CANCELLATIONS | SCORE_SURGE
+    severity      = Column(String(20), default="MEDIUM", nullable=False)  # LOW | MEDIUM | HIGH
+    description   = Column(String(512), nullable=False)
+    score_before  = Column(Integer, nullable=True)
+    score_after   = Column(Integer, nullable=True)
+    resolved      = Column(Integer, default=0, nullable=False)  # 0=open, 1=resolved (SQLite-safe bool)
+    created_at    = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
+    resolved_at   = Column(DateTime(timezone=True), nullable=True)
+
+    user = relationship("User", back_populates="anomaly_flags")

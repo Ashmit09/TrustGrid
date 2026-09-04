@@ -214,27 +214,49 @@ export default function BuyerTrustGrid() {
   const [explanation, setExplanation] = useState(null)
   const [loading,     setLoading]     = useState(true)
   const [error,       setError]       = useState(null)
+  const [exporting,   setExporting]   = useState(false)
+
+  const handleExport = useCallback(async () => {
+    if (!userId) return
+    setExporting(true)
+    try {
+      const { default: api } = await import('../../services/api')
+      const resp = await api.get(`/trust/${userId}/export`, { responseType: 'blob' })
+      const url  = URL.createObjectURL(new Blob([resp.data], { type: 'text/csv' }))
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = `trustgrid_history_${userId}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch { /* silently ignore */ }
+    finally  { setExporting(false) }
+  }, [userId])
 
   const load = useCallback(() => {
     if (!userId) return
     setLoading(true)
     Promise.all([
-      trustService.getMyTrust(),
-      trustService.getBreakdown(userId),
-      trustService.getHistory(userId),
-      trustService.getBenefits(userId),
-      trustService.getExplanation(userId),
+      trustService.getMyTrust().catch(() => null),
+      trustService.getBreakdown(userId).catch(() => null),
+      trustService.getHistory(userId).catch(() => []),
+      trustService.getBenefits(userId).catch(() => ({ benefits: [] })),
+      trustService.getExplanation(userId).catch(() => null),
     ])
       .then(([t, b, h, ben, ex]) => {
+        if (!t) {
+          setError('Failed to load trust profile. Make sure the backend is running.')
+          setLoading(false)
+          return
+        }
         setTrust(t)
         setBreakdown(b)
-        setHistory(h)
+        setHistory(h || [])
         setBenefits(ben?.benefits || [])
         setExplanation(ex)
         setLoading(false)
       })
-      .catch((e) => {
-        setError('Failed to load TrustGrid data.')
+      .catch(() => {
+        setError('Failed to load TrustGrid data. Make sure the backend is running.')
         setLoading(false)
       })
   }, [userId])
@@ -356,9 +378,20 @@ export default function BuyerTrustGrid() {
 
           {/* Score History Chart + List */}
           <div className="tg-card">
-            <div className="tg-card__title">
-              <span className="tg-card__title-icon">📈</span>
-              Score History
+            <div className="tg-card__title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>
+                <span className="tg-card__title-icon">📈</span>
+                Score History
+              </span>
+              <button
+                className="btn btn-secondary"
+                style={{ fontSize: '12px', padding: '4px 12px' }}
+                onClick={handleExport}
+                disabled={exporting}
+                title="Download full history as CSV"
+              >
+                {exporting ? 'Exporting…' : '⬇ Export CSV'}
+              </button>
             </div>
             <ScoreHistoryChart history={history} />
             <div className="tg-history" style={{ marginTop: 'var(--space-4)' }}>

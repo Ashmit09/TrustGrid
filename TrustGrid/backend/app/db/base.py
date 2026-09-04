@@ -16,5 +16,5 @@ from app.models.marketplace import (                # noqa: F401, E402
     Order, Payment, Return, Review, Referral
 )
 from app.models.trust import (                      # noqa: F401, E402
-    TrustEvent, BehaviorFeatures, TrustScore, ScoreHistory, Privilege
+    TrustEvent, BehaviorFeatures, TrustScore, ScoreHistory, Privilege, AnomalyFlag
 )

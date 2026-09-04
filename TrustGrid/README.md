@@ -459,7 +459,11 @@ All features used for prediction are computed from **past events only**. The tar
 | GET | `/trust/{user_id}/breakdown` | JWT (own) | Per-dimension scores + recommendations |
 | GET | `/trust/{user_id}/benefits` | JWT (own) | Active/inactive privileges |
 | GET | `/trust/{user_id}/explain` | JWT (own) | Human-readable explanation |
+| GET | `/trust/{user_id}/export` | JWT (own) | Download full score history as CSV |
+| POST | `/trust/{user_id}/simulate` | JWT (own) | What-if score simulation (read-only) |
 | POST | `/trust/referral` | Buyer JWT | Claim referral reward |
+| POST | `/trust/events` | Admin JWT | Manually fire a trust event |
+| POST | `/trust/refresh` | Admin JWT | Manually recalculate trust score |
 
 ### Admin
 
@@ -468,6 +472,9 @@ All features used for prediction are computed from **past events only**. The tar
 | GET | `/admin/analytics` | Admin JWT | Platform-wide analytics |
 | GET | `/admin/users` | Admin JWT | User list with trust data |
 | GET | `/admin/trust-distribution` | Admin JWT | Score histogram (10 buckets) |
+| GET | `/admin/anomalies` | Admin JWT | List anomaly flags (filterable by resolved/severity) |
+| POST | `/admin/anomalies/scan` | Admin JWT | Trigger anomaly detection scan |
+| PATCH | `/admin/anomalies/{flag_id}/resolve` | Admin JWT | Resolve an open anomaly flag |
 
 ### Trust Profile Response Example
 
@@ -542,6 +549,8 @@ pytest --cov=app --cov-report=term-missing
 - Phase 5: Feature engine + time decay (29 tests)
 - Phase 6: Trust engine + confidence + privileges (57 tests)
 - Phase 16: End-to-end scenarios + ML + admin + authorization (63 tests)
+- Phase 19: What-if score simulation (22 tests)
+- Phase 20/21/22: Admin user modal, anomaly detection, CSV export (25 tests)
 
 All tests use an isolated SQLite in-memory/file database — no PostgreSQL required.
 
@@ -578,9 +587,11 @@ All tests use an isolated SQLite in-memory/file database — no PostgreSQL requi
 3. TrustGrid Explanation shows: "Recent activity has a greater influence on your Trust Score."
 
 ### Scenario 6 — Admin Analytics
-1. Login as `admin@trustgrid.com`
+1. Login as `admin@demo.com`
 2. Navigate to `/admin`
 3. View: buyer/seller counts, average scores, tier distributions, confidence distribution, recent changes
+4. Click any user row in the Users tab to open their full Trust Profile modal
+5. Navigate to the Alerts tab → click "Run Scan Now" to detect behavioural anomalies
 
 ---
 

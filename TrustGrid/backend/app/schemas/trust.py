@@ -23,10 +23,10 @@ class DimScores(BaseModel):
 
 
 class ScoreChangeOut(BaseModel):
-    change:     int
-    reason:     Optional[str]
-    event_type: Optional[str]
-    created_at: datetime
+    score_change: int
+    reason:       Optional[str]
+    event_type:   Optional[str]
+    created_at:   datetime
 
     model_config = {"from_attributes": True}
 

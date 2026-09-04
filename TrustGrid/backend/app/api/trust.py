@@ -9,13 +9,17 @@ GET  /trust/{user_id}/history   → paginated score-change history
 GET  /trust/{user_id}/breakdown → per-dimension scores
 GET  /trust/{user_id}/benefits  → active + inactive privileges
 GET  /trust/{user_id}/explain   → human-readable explanation
+GET  /trust/{user_id}/export    → download full score history as CSV
 POST /trust/{user_id}/simulate  → what-if simulation (how many events to next tier)
 POST /trust/events              → manually fire a trust event (admin only)
 POST /trust/referral            → claim a referral reward
 POST /trust/refresh             → manually trigger recalculation (admin only)
 """
+import csv
+import io
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -630,3 +634,51 @@ def refresh_trust_score(
         "confidence":  profile.confidence.value if hasattr(profile.confidence, "value") else profile.confidence,
         "tier":        profile.tier.value if hasattr(profile.tier, "value") else profile.tier,
     }
+
+
+# ── GET /trust/{user_id}/export ───────────────────────────────────────────────
+
+@router.get("/{user_id}/export", summary="Export score history as CSV")
+def export_score_history(
+    user_id: str,
+    payload: dict = Depends(get_current_user_payload),
+    db: Session = Depends(get_db),
+):
+    """
+    Download the user's full score history as a CSV file.
+    Only the owner or an admin may download.
+    """
+    requester_id   = payload["sub"]
+    requester_role = payload.get("role", "")
+
+    if requester_id != user_id and requester_role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Access denied.")
+
+    rows = (
+        db.query(ScoreHistory)
+        .filter(ScoreHistory.user_id == user_id)
+        .order_by(ScoreHistory.created_at.asc())
+        .all()
+    )
+
+    # Build CSV in memory
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["timestamp", "old_score", "new_score", "score_change", "event_type", "reason"])
+    for r in rows:
+        writer.writerow([
+            r.created_at.isoformat() if r.created_at else "",
+            r.old_score,
+            r.new_score,
+            r.score_change,
+            r.event_type or "",
+            r.reason or "",
+        ])
+
+    output.seek(0)
+    filename = f"trustgrid_history_{user_id}.csv"
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

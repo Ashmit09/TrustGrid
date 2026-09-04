@@ -1,0 +1,944 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TrustGrid — Technical Presentation</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --b:#1e3a8a;--b2:#3b82f6;--b3:#eff6ff;--b4:#bfdbfe;
+  --p:#4f46e5;--p2:#7c3aed;--p3:#f5f3ff;--p4:#c4b5fd;
+  --g:#16a34a;--g2:#f0fdf4;--g3:#86efac;
+  --o:#d97706;--o2:#fffbeb;--o3:#fcd34d;
+  --r:#dc2626;--r2:#fef2f2;--r3:#fca5a5;
+  --t:#111827;--m:#6b7280;--bdr:#e5e7eb;--sf:#f9fafb;
+  --mono:"SF Mono","Fira Code","Cascadia Code",monospace;
+}
+body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;font-size:13.5px;line-height:1.6;color:var(--t);background:#f1f5f9;}
+.deck{max-width:960px;margin:0 auto;padding:32px 20px 80px;display:flex;flex-direction:column;gap:0;}
+
+/* ── slide ── */
+.slide{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:44px 48px;margin-bottom:24px;page-break-inside:avoid;position:relative;overflow:hidden;}
+.slide::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--b),var(--p),var(--p2));}
+
+/* cover slide */
+.cover{background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 45%,#4f46e5 80%,#7c3aed 100%);color:#fff;border:none;padding:64px 56px;}
+.cover::before{background:linear-gradient(90deg,rgba(255,255,255,0.3),rgba(255,255,255,0.1),rgba(255,255,255,0.3));}
+.cover-badge{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:999px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px;}
+.cover h1{font-size:52px;font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:16px;}
+.cover h1 span{color:#a5b4fc;}
+.cover-sub{font-size:16px;opacity:.85;max-width:580px;line-height:1.7;margin-bottom:36px;}
+.cover-stats{display:flex;gap:40px;flex-wrap:wrap;}
+.cstat{text-align:center;}
+.cstat-v{font-size:30px;font-weight:800;display:block;letter-spacing:-.02em;}
+.cstat-l{font-size:10px;opacity:.65;text-transform:uppercase;letter-spacing:.07em;}
+
+/* slide header */
+.sh{display:flex;align-items:flex-start;gap:14px;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--bdr);}
+.sn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--b),var(--p2));color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sh-text h2{font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--t);}
+.sh-text p{font-size:13px;color:var(--m);margin-top:2px;}
+
+/* utils */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.card{background:var(--sf);border:1px solid var(--bdr);border-radius:10px;padding:18px;}
+.tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;border:1px solid;}
+.tag-b{background:var(--b3);color:var(--b);border-color:var(--b4);}
+.tag-p{background:var(--p3);color:var(--p2);border-color:var(--p4);}
+.tag-g{background:var(--g2);color:var(--g);border-color:var(--g3);}
+.tag-o{background:var(--o2);color:var(--o);border-color:var(--o3);}
+.tag-r{background:var(--r2);color:var(--r);border-color:var(--r3);}
+.mono{font-family:var(--mono);font-size:12px;}
+.code{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.7;}
+.code .kw{color:#93c5fd;} .code .fn{color:#6ee7b7;} .code .st{color:#fca5a5;} .code .cm{color:#475569;} .code .nb{color:#fbbf24;}
+.lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--m);margin-bottom:8px;}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+.pass{background:#f0fdf4;color:#15803d;border:1px solid #86efac;}
+.dot-g{width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block;}
+.dot-b{width:7px;height:7px;border-radius:50%;background:#2563eb;display:inline-block;}
+
+/* ── SLIDE 2 — problem ── */
+.prob-box{border-radius:10px;padding:18px;border:1px solid;}
+.prob-box--r{background:var(--r2);border-color:var(--r3);}
+.prob-box--o{background:var(--o2);border-color:var(--o3);}
+.prob-box--p{background:var(--p3);border-color:var(--p4);}
+.prob-icon{font-size:26px;margin-bottom:10px;}
+.prob-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.prob-desc{font-size:12px;line-height:1.6;color:var(--m);}
+
+/* ── SLIDE 3 — architecture ── */
+.arch{display:flex;flex-direction:column;gap:0;align-items:center;}
+.arch-row{display:flex;align-items:stretch;gap:0;width:100%;}
+.arch-block{flex:1;border:1.5px solid;border-radius:8px;padding:12px 14px;text-align:center;position:relative;}
+.arch-block__title{font-size:12px;font-weight:700;margin-bottom:4px;}
+.arch-block__sub{font-size:10px;color:var(--m);line-height:1.4;}
+.arch-arrow-down{text-align:center;font-size:18px;color:var(--m);line-height:1;padding:4px 0;font-weight:700;}
+.arch-arrow-right{display:flex;align-items:center;padding:0 6px;color:var(--m);font-size:14px;font-weight:700;flex-shrink:0;}
+.ab-fe{background:var(--b3);border-color:var(--b4);}
+.ab-api{background:#f0f9ff;border-color:#bae6fd;}
+.ab-ev{background:var(--o2);border-color:var(--o3);}
+.ab-feat{background:#fef9c3;border-color:#fde68a;}
+.ab-ml{background:var(--p3);border-color:var(--p4);}
+.ab-te{background:#ecfdf5;border-color:#6ee7b7;}
+.ab-conf{background:#fff7ed;border-color:#fed7aa;}
+.ab-priv{background:#f0fdf4;border-color:var(--g3);}
+.ab-db{background:var(--sf);border-color:var(--bdr);}
+
+/* ── SLIDE 4 — pipeline ── */
+.pipe{display:flex;align-items:flex-start;position:relative;padding:8px 0;}
+.pipe::before{content:'';position:absolute;top:36px;left:28px;right:28px;height:2px;background:linear-gradient(90deg,var(--b),var(--p),var(--p2),var(--g));z-index:0;}
+.pstep{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:1;}
+.pstep__circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid #fff;box-shadow:0 0 0 3px var(--b4);}
+.pstep__circle--1{background:var(--b3);box-shadow:0 0 0 3px var(--b4);}
+.pstep__circle--2{background:var(--o2);box-shadow:0 0 0 3px var(--o3);}
+.pstep__circle--3{background:#fef9c3;box-shadow:0 0 0 3px #fde68a;}
+.pstep__circle--4{background:var(--p3);box-shadow:0 0 0 3px var(--p4);}
+.pstep__circle--5{background:#ecfdf5;box-shadow:0 0 0 3px #6ee7b7;}
+.pstep__circle--6{background:var(--g2);box-shadow:0 0 0 3px var(--g3);}
+.pstep__title{font-size:11px;font-weight:700;text-align:center;color:var(--t);}
+.pstep__sub{font-size:10px;color:var(--m);text-align:center;line-height:1.4;max-width:90px;}
+
+/* ── SLIDE 5 — dimensions ── */
+.dim-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.dim-row:last-child{margin-bottom:0;}
+.dim-lbl{font-size:12px;font-weight:600;min-width:175px;}
+.dim-track{flex:1;background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden;}
+.dim-fill{height:100%;border-radius:999px;}
+.dim-wt{font-size:11px;font-weight:700;color:var(--m);min-width:30px;text-align:right;}
+
+/* ── SLIDE 6 — scoring maths ── */
+.formula-box{background:#0f172a;border-radius:10px;padding:16px 20px;font-family:var(--mono);font-size:12.5px;line-height:1.9;color:#e2e8f0;margin-bottom:14px;}
+.formula-box .c1{color:#93c5fd;}
+.formula-box .c2{color:#6ee7b7;}
+.formula-box .c3{color:#fbbf24;}
+.formula-box .c4{color:#f9a8d4;}
+.formula-box .cm{color:#475569;}
+
+/* ── SLIDE 7 — tiers ── */
+.tier-card{border-radius:10px;padding:18px;border:1.5px solid;text-align:center;}
+.tr-range{font-size:20px;font-weight:900;font-family:var(--mono);margin-bottom:4px;}
+.tr-name{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+.tr-desc{font-size:11px;color:var(--m);line-height:1.4;margin-bottom:10px;}
+.tr-ben{font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;}
+.tc-r{background:var(--r2);border-color:var(--r3);}
+.tc-o{background:var(--o2);border-color:var(--o3);}
+.tc-b{background:var(--b3);border-color:var(--b4);}
+.tc-p{background:var(--p3);border-color:var(--p4);}
+.tc-r .tr-range{color:var(--r);}
+.tc-o .tr-range{color:var(--o);}
+.tc-b .tr-range{color:var(--b);}
+.tc-p .tr-range{color:var(--p2);}
+.tc-r .tr-ben{background:var(--r2);color:var(--r);}
+.tc-o .tr-ben{background:var(--o2);color:var(--o);}
+.tc-b .tr-ben{background:var(--b3);color:var(--b);}
+.tc-p .tr-ben{background:var(--p3);color:var(--p2);}
+
+/* ── SLIDE 8 — ML ── */
+.ml-metric{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bdr);}
+.ml-metric:last-child{border-bottom:none;}
+.ml-metric__lbl{font-size:13px;font-weight:600;}
+.ml-vals{display:flex;gap:24px;}
+.ml-val{text-align:center;}
+.ml-val__n{display:block;font-size:16px;font-weight:800;color:var(--g);font-family:var(--mono);}
+.ml-val__s{font-size:10px;color:var(--m);}
+.conf-bar{height:10px;border-radius:999px;margin-top:4px;}
+.feat-chip{display:inline-block;background:var(--sf);border:1px solid var(--bdr);border-radius:6px;padding:3px 8px;font-size:11px;font-family:var(--mono);margin:3px 3px 0 0;color:var(--b);}
+
+/* ── SLIDE 9 — test suite ── */
+.test-file{border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.test-file:last-child{margin-bottom:0;}
+.test-file__header{background:var(--sf);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr);}
+.test-file__name{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--b);}
+.test-file__count{font-size:12px;font-weight:700;color:var(--g);}
+.test-cases{padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px;}
+.tc-pill{font-size:10px;padding:3px 8px;border-radius:999px;font-family:var(--mono);background:var(--g2);color:#15803d;border:1px solid var(--g3);}
+.test-summary{background:linear-gradient(135deg,#0f172a,#1e3a8a);border-radius:12px;padding:24px 28px;color:#fff;display:flex;align-items:center;justify-content:space-between;margin-top:16px;}
+.ts-stat{text-align:center;}
+.ts-stat__v{font-size:32px;font-weight:900;font-family:var(--mono);color:#6ee7b7;display:block;}
+.ts-stat__l{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.06em;}
+.ts-bar{flex:1;margin:0 28px;}
+.ts-bar-track{background:rgba(255,255,255,.1);border-radius:999px;height:8px;overflow:hidden;margin-bottom:6px;}
+.ts-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#6ee7b7,#34d399);}
+.ts-bar-lbl{font-size:11px;opacity:.7;}
+
+/* ── SLIDE 10 — API ── */
+.api-table{width:100%;border-collapse:collapse;font-size:12px;}
+.api-table th{text-align:left;padding:8px 12px;background:var(--sf);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--m);border-bottom:2px solid var(--bdr);}
+.api-table td{padding:8px 12px;border-bottom:1px solid var(--bdr);}
+.api-table tr:last-child td{border-bottom:none;}
+.method{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;font-family:var(--mono);}
+.m-get{background:#dcfce7;color:#15803d;}
+.m-post{background:#dbeafe;color:#1d4ed8;}
+.ep{font-family:var(--mono);font-size:11px;color:var(--b);}
+
+/* ── SLIDE 11 — DB schema ── */
+.db-table{border:1px solid var(--bdr);border-radius:8px;overflow:hidden;margin-bottom:10px;}
+.db-table__head{background:linear-gradient(90deg,var(--b),var(--p));color:#fff;padding:7px 14px;font-size:11px;font-weight:700;letter-spacing:.04em;}
+.db-table__rows{padding:8px 0;}
+.db-col{display:flex;align-items:center;gap:10px;padding:4px 14px;font-size:11px;}
+.db-col:hover{background:var(--sf);}
+.db-pk{color:var(--o);font-weight:700;font-family:var(--mono);}
+.db-fk{color:var(--b2);font-weight:700;font-family:var(--mono);}
+.db-name{font-family:var(--mono);color:var(--t);min-width:175px;}
+.db-type{color:var(--m);font-size:10px;}
+.db-note{color:var(--p2);font-size:10px;margin-left:auto;}
+
+/* ── SLIDE 12 — simulation ── */
+.sim-box{background:#0f172a;border-radius:10px;padding:16px 20px;font-family:var(--mono);font-size:12px;color:#e2e8f0;line-height:1.8;}
+.sim-box .k{color:#93c5fd;}.sim-box .s{color:#6ee7b7;}.sim-box .n{color:#fbbf24;}.sim-box .p{color:#f9a8d4;}.sim-box .c{color:#475569;}
+.sim-result{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-top:16px;}
+.sim-score{text-align:center;border-radius:10px;padding:16px;border:1.5px solid;}
+.sim-score--cur{background:var(--sf);border-color:var(--bdr);}
+.sim-score--prj{background:var(--b3);border-color:var(--b4);}
+.sim-score__lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--m);}
+.sim-score__val{font-size:36px;font-weight:900;font-family:var(--mono);line-height:1;}
+.sim-arrow{font-size:28px;text-align:center;color:var(--g);font-weight:900;}
+.sim-delta{font-size:12px;font-weight:700;color:var(--g);font-family:var(--mono);}
+
+/* ── SLIDE 13 — demo users ── */
+.du-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.du-table th{text-align:left;padding:9px 14px;background:var(--sf);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--m);border-bottom:2px solid var(--bdr);}
+.du-table td{padding:10px 14px;border-bottom:1px solid var(--bdr);}
+.du-table tr:last-child td{border-bottom:none;}
+.uid{font-family:var(--mono);font-size:11px;background:var(--sf);border:1px solid var(--bdr);border-radius:4px;padding:2px 6px;color:var(--m);}
+.tbg{display:inline-block;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:700;}
+.t-E{background:var(--p3);color:var(--p2);}
+.t-T{background:var(--b3);color:var(--b);}
+.t-S{background:var(--o2);color:var(--o);}
+.t-R{background:var(--r2);color:var(--r);}
+.c-H{background:var(--g2);color:var(--g);}
+.c-M{background:var(--o2);color:var(--o);}
+.c-L{background:var(--sf);color:var(--m);}
+.score-bar-wrap{width:80px;background:var(--bdr);border-radius:999px;height:6px;display:inline-block;vertical-align:middle;margin-left:6px;}
+.score-bar-fill{height:100%;border-radius:999px;}
+
+/* ── SLIDE 14 — stack ── */
+.stack-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.stack-item{background:var(--sf);border:1px solid var(--bdr);border-radius:10px;padding:16px 10px;text-align:center;}
+.stack-icon{font-size:24px;margin-bottom:8px;}
+.stack-name{font-size:12px;font-weight:700;}
+.stack-ver{font-size:10px;color:var(--m);margin-top:2px;}
+
+/* footer */
+.footer{text-align:center;padding:20px 0 0;border-top:1px solid var(--bdr);color:var(--m);font-size:11px;margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="deck">
+
+
+<div class="slide cover">
+  <div class="cover-badge">Academic Prototype · ML-Powered · Python + React</div>
+  <h1>Trust<span>Grid</span></h1>
+  <p class="cover-sub">A dynamic, ML-assisted trust scoring and privilege engine for two-sided e-commerce marketplaces — turning marketplace behaviour into a transparent, evidence-backed 0–1000 Trust Score.</p>
+  <div class="cover-stats">
+    <div class="cstat"><span class="cstat-v">0–1000</span><span class="cstat-l">Trust Score</span></div>
+    <div class="cstat"><span class="cstat-v">5</span><span class="cstat-l">Dimensions</span></div>
+    <div class="cstat"><span class="cstat-v">19</span><span class="cstat-l">Event Types</span></div>
+    <div class="cstat"><span class="cstat-v">90d</span><span class="cstat-l">Decay Half-Life</span></div>
+    <div class="cstat"><span class="cstat-v">252</span><span class="cstat-l">Tests Passing</span></div>
+    <div class="cstat"><span class="cstat-v">0</span><span class="cstat-l">Failures</span></div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">1</div><div class="sh-text"><h2>Problem Statement</h2><p>Why existing marketplace reputation systems are inadequate</p></div></div>
+  <div class="grid3" style="margin-bottom:20px">
+    <div class="prob-box prob-box--r">
+      <div class="prob-icon">⭐</div>
+      <div class="prob-title">Static Star Ratings</div>
+      <div class="prob-desc">A 5-star review from 3 years ago carries identical weight to one from yesterday. History is treated as timeless — no temporal sensitivity.</div>
+    </div>
+    <div class="prob-box prob-box--o">
+      <div class="prob-icon">🔢</div>
+      <div class="prob-title">No Evidence Quality</div>
+      <div class="prob-desc">A score from 2 transactions looks identical to one from 2,000. There is no signal for how much we should trust the score itself.</div>
+    </div>
+    <div class="prob-box prob-box--p">
+      <div class="prob-icon">🤷</div>
+      <div class="prob-title">Zero Explainability</div>
+      <div class="prob-desc">Users see a rating change but never understand why — which behaviour caused it, or what actions would improve it.</div>
+    </div>
+  </div>
+  <div style="background:var(--b3);border:1px solid var(--b4);border-radius:10px;padding:16px 20px;display:flex;gap:14px;align-items:center">
+    <div style="font-size:24px">🎯</div>
+    <div style="font-size:13px;color:#1e40af;line-height:1.6"><strong>TrustGrid's goal:</strong> Model trust as a dynamic, evidence-gated score derived from observed behaviour — with temporal weighting, confidence levels, and plain-language explanations baked in.</div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">2</div><div class="sh-text"><h2>System Architecture</h2><p>Full-stack overview — React frontend · FastAPI backend · TrustGrid engine · PostgreSQL</p></div></div>
+  <div class="arch">
+    
+    <div class="arch-row">
+      <div class="arch-block ab-fe" style="border-color:#93c5fd">
+        <div style="font-size:18px;margin-bottom:6px">⚛️</div>
+        <div class="arch-block__title">React 18 Frontend</div>
+        <div class="arch-block__sub">Buyer · Seller · Admin dashboards<br />Vite · React Router v6 · Axios</div>
+      </div>
+    </div>
+    <div class="arch-arrow-down">↓ REST API (JWT Bearer)</div>
+    
+    <div class="arch-row" style="gap:8px">
+      <div class="arch-block ab-api" style="flex:1.2">
+        <div style="font-size:16px;margin-bottom:4px">⚡</div>
+        <div class="arch-block__title">FastAPI Backend</div>
+        <div class="arch-block__sub">/auth · /products · /orders<br />/trust · /admin</div>
+      </div>
+      <div class="arch-arrow-right">→</div>
+      <div class="arch-block ab-ev">
+        <div style="font-size:16px;margin-bottom:4px">📋</div>
+        <div class="arch-block__title">Event Service</div>
+        <div class="arch-block__sub">19 event types<br />Immutable event log</div>
+      </div>
+      <div class="arch-arrow-right">→</div>
+      <div class="arch-block ab-feat">
+        <div style="font-size:16px;margin-bottom:4px">⏳</div>
+        <div class="arch-block__title">Feature Engine</div>
+        <div class="arch-block__sub">Time decay<br />Feature vector</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;padding-right:0;width:100%">
+      <div style="width:66.5%;text-align:center;font-size:18px;color:var(--m);font-weight:700;padding:4px 0">↓</div>
+    </div>
+    
+    <div class="arch-row" style="gap:8px;justify-content:flex-end">
+      <div class="arch-block ab-ml" style="flex:0 0 200px">
+        <div style="font-size:16px;margin-bottom:4px">🤖</div>
+        <div class="arch-block__title">ML Service</div>
+        <div class="arch-block__sub">XGBoost · P(reliable)<br />Buyer + Seller models</div>
+      </div>
+      <div class="arch-arrow-right">→</div>
+      <div class="arch-block ab-te" style="flex:0 0 200px">
+        <div style="font-size:16px;margin-bottom:4px">⚖️</div>
+        <div class="arch-block__title">Trust Engine</div>
+        <div class="arch-block__sub">Dimensions · Blend<br />Smooth · Clamp</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;width:100%">
+      <div style="width:44%;text-align:center;font-size:18px;color:var(--m);font-weight:700;padding:4px 0">↓</div>
+    </div>
+    
+    <div class="arch-row" style="gap:8px;justify-content:flex-end">
+      <div class="arch-block ab-conf" style="flex:0 0 200px">
+        <div style="font-size:16px;margin-bottom:4px">📊</div>
+        <div class="arch-block__title">Confidence Service</div>
+        <div class="arch-block__sub">LOW · MEDIUM · HIGH<br />Evidence counting</div>
+      </div>
+      <div class="arch-arrow-right">→</div>
+      <div class="arch-block ab-priv" style="flex:0 0 200px">
+        <div style="font-size:16px;margin-bottom:4px">🏅</div>
+        <div class="arch-block__title">Privilege Engine</div>
+        <div class="arch-block__sub">Score + Confidence<br />→ Unlock benefits</div>
+      </div>
+    </div>
+    <div class="arch-arrow-down">↓ Persist all state</div>
+    
+    <div class="arch-row">
+      <div class="arch-block ab-db">
+        <div style="font-size:18px;margin-bottom:6px">🗄️</div>
+        <div class="arch-block__title">PostgreSQL</div>
+        <div class="arch-block__sub">users · trust_scores · trust_events · behavior_features · score_history · privileges · products · orders</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">3</div><div class="sh-text"><h2>TrustGrid Processing Pipeline</h2><p>From a single marketplace action to an updated Trust Score in 6 steps</p></div></div>
+  <div class="pipe" style="margin-bottom:28px">
+    <div class="pstep"><div class="pstep__circle pstep__circle--1">🛒</div><div class="pstep__title">Marketplace Action</div><div class="pstep__sub">Order placed, payment, cancel, return, review, referral</div></div>
+    <div class="pstep"><div class="pstep__circle pstep__circle--2">📋</div><div class="pstep__title">Event Recorded</div><div class="pstep__sub">Timestamped, immutable row in trust_events</div></div>
+    <div class="pstep"><div class="pstep__circle pstep__circle--3">⏳</div><div class="pstep__title">Feature Engine</div><div class="pstep__sub">Decay-weighted aggregation → 24-field vector</div></div>
+    <div class="pstep"><div class="pstep__circle pstep__circle--4">🤖</div><div class="pstep__title">ML Inference</div><div class="pstep__sub">XGBoost returns P(reliable) ∈ [0,1]</div></div>
+    <div class="pstep"><div class="pstep__circle pstep__circle--5">⚖️</div><div class="pstep__title">Trust Engine</div><div class="pstep__sub">Dims → blend → smooth → clamp → 0–1000</div></div>
+    <div class="pstep"><div class="pstep__circle pstep__circle--6">🏅</div><div class="pstep__title">Privileges Updated</div><div class="pstep__sub">Benefits locked or unlocked instantly</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="lbl">19 Event Types Tracked</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">
+        <span class="tag tag-b">ORDER_PLACED</span><span class="tag tag-g">ORDER_COMPLETED</span><span class="tag tag-r">ORDER_CANCELLED</span><span class="tag tag-g">PAYMENT_SUCCESS</span><span class="tag tag-r">PAYMENT_FAILED</span><span class="tag tag-o">RETURN_REQUESTED</span><span class="tag tag-g">RETURN_COMPLETED</span><span class="tag tag-g">REVIEW_SUBMITTED</span><span class="tag tag-g">REFERRAL_COMPLETED</span><span class="tag tag-p">ORDER_FULFILLED</span><span class="tag tag-p">ORDER_DELIVERED</span><span class="tag tag-r">ORDER_LATE</span><span class="tag tag-r">SELLER_CANCELLED</span><span class="tag tag-o">RETURN_REQUEST_RECEIVED</span><span class="tag tag-g">RETURN_RESOLVED</span><span class="tag tag-r">RETURN_REJECTED</span><span class="tag tag-p">REVIEW_RECEIVED</span><span class="tag tag-p">PRODUCT_LISTED</span><span class="tag tag-g">REFERRAL_MADE</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="lbl">Meaningful Events (Confidence Counting)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">
+        <span class="tag tag-g">ORDER_COMPLETED</span><span class="tag tag-g">ORDER_DELIVERED</span><span class="tag tag-g">PAYMENT_SUCCESS</span><span class="tag tag-g">RETURN_RESOLVED</span><span class="tag tag-g">REFERRAL_COMPLETED</span>
+      </div>
+      <div style="margin-top:12px" class="lbl">Confidence Thresholds</div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <span class="tag tag-r">LOW: 0–5 events</span>
+        <span class="tag tag-o">MEDIUM: 6–30 events</span>
+        <span class="tag tag-g">HIGH: 31+ events</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">4</div><div class="sh-text"><h2>Behavioural Dimensions</h2><p>Five weighted dimensions per role — each scored 0–100, combined into the Trust Score</p></div></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="lbl" style="margin-bottom:14px">🛍️ Buyer Dimensions</div>
+      <div class="dim-row"><div class="dim-lbl">Order Reliability</div><div class="dim-track"><div class="dim-fill" style="width:100%;background:#2563eb"></div></div><div class="dim-wt">25%</div></div>
+      <div class="dim-row"><div class="dim-lbl">Return Behaviour</div><div class="dim-track"><div class="dim-fill" style="width:100%;background:#2563eb"></div></div><div class="dim-wt">25%</div></div>
+      <div class="dim-row"><div class="dim-lbl">Payment Reliability</div><div class="dim-track"><div class="dim-fill" style="width:80%;background:#3b82f6"></div></div><div class="dim-wt">20%</div></div>
+      <div class="dim-row"><div class="dim-lbl">Cancellation Behaviour</div><div class="dim-track"><div class="dim-fill" style="width:60%;background:#60a5fa"></div></div><div class="dim-wt">15%</div></div>
+      <div class="dim-row"><div class="dim-lbl">Platform Engagement</div><div class="dim-track"><div class="dim-fill" style="width:60%;background:#60a5fa"></div></div><div class="dim-wt">15%</div></div>
+    </div>
+    <div class="card">
+      <div class="lbl" style="margin-bottom:14px">🏪 Seller Dimensions</div>
+      <div class="dim-row"><div class="dim-lbl">Order Fulfillment</div><div class="dim-track"><div class="dim-fill" style="width:100%;background:#7c3aed"></div></div><div class="dim-wt">25%</div></div>
+      <div class="dim-row"><div class="dim-lbl">Delivery Performance</div><div class="dim-track"><div class="dim-fill" style="width:100%;background:#7c3aed"></div></div><div class="dim-wt">25%</div></div>
+      <div class="dim-row"><div class="dim-lbl">Customer Satisfaction</div><div class="dim-track"><div class="dim-fill" style="width:80%;background:#8b5cf6"></div></div><div class="dim-wt">20%</div></div>
+      <div class="dim-row"><div class="dim-lbl">Return &amp; Dispute Handling</div><div class="dim-track"><div class="dim-fill" style="width:60%;background:#a78bfa"></div></div><div class="dim-wt">15%</div></div>
+      <div class="dim-row"><div class="dim-lbl">Platform Reliability</div><div class="dim-track"><div class="dim-fill" style="width:60%;background:#a78bfa"></div></div><div class="dim-wt">15%</div></div>
+    </div>
+  </div>
+  <div style="margin-top:16px" class="card">
+    <div class="lbl">Dimension Scoring Formulas</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;font-size:12px">
+      <div><strong>_rate_to_score(r)</strong> = max(20, min(100, 20 + r×80))<br /><span style="color:var(--m)">Linear mapping: 1.0 → 100, 0.0 → 20. Minimum 20 prevents zero.</span></div>
+      <div><strong>Return curve (buyer)</strong><br /><span style="color:var(--m)">≤10% return rate → D2 = 100 (full score, not penalised)<br />≤30% → linear 100→60  |  &gt;30% → max(20, steeper penalty)</span></div>
+      <div><strong>Cancellation (buyer)</strong><br /><span style="color:var(--m)">≤5% → 100  |  ≤30% → linear 100→50  |  &gt;30% → max(20, …)</span></div>
+      <div><strong>Customer Satisfaction (seller)</strong><br /><span style="color:var(--m)">0 ratings → 70 (neutral)  |  5★ → 100  |  1★ → 20 (linear)</span></div>
+    </div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">5</div><div class="sh-text"><h2>Scoring Mathematics</h2><p>Time decay · ML blending · Score smoothing · Final formula</p></div></div>
+  <div class="grid2">
+    <div>
+      <div class="lbl">① Exponential Time Decay (90-day half-life)</div>
+      <div class="formula-box">
+<span class="c1">w</span>(<span class="c2">t</span>) = exp(−<span class="c3">λ</span> × age_days)<br />
+<span class="c3">λ</span>  = ln(2) / 90 ≈ <span class="nb">0.00770</span><br /><br />
+<span class="c4">w(0 days)</span>   ≈ <span class="nb">1.000</span>  <span class="cm">← today</span><br />
+<span class="c4">w(30 days)</span>  ≈ <span class="nb">0.794</span><br />
+<span class="c4">w(90 days)</span>  ≈ <span class="nb">0.500</span>  <span class="cm">← half-life</span><br />
+<span class="c4">w(180 days)</span> ≈ <span class="nb">0.250</span><br />
+<span class="c4">w(270 days)</span> ≈ <span class="nb">0.125</span>  <span class="cm">← minimal</span>
+      </div>
+      <div class="lbl" style="margin-top:14px">② ML Blending (β grows with evidence)</div>
+      <div class="formula-box">
+<span class="c1">β</span> = <span class="nb">0.0</span>  <span class="cm">(weight &lt; 1)   — brand-new user</span><br />
+<span class="c1">β</span> = <span class="nb">0.3</span>  <span class="cm">(weight 1–10) — early evidence</span><br />
+<span class="c1">β</span> = <span class="nb">0.5</span>  <span class="cm">(weight &gt; 10) — established</span><br /><br />
+<span class="c2">ml_raw</span>  = 20 + P(reliable) × 80<br />
+<span class="c2">final</span>   = <span class="c1">β</span>×ml_raw + (1−<span class="c1">β</span>)×rule_raw
+      </div>
+    </div>
+    <div>
+      <div class="lbl">③ Score Smoothing (prevents single-event swings)</div>
+      <div class="formula-box">
+<span class="c2">new_score</span> = <span class="c1">α</span>×model_score + (1−<span class="c1">α</span>)×old_score<br /><br />
+<span class="c1">α</span> = <span class="nb">0.20</span>  <span class="cm">— LOW confidence (history dominates)</span><br />
+<span class="c1">α</span> = <span class="nb">0.50</span>  <span class="cm">— MEDIUM confidence (balanced)</span><br />
+<span class="c1">α</span> = <span class="nb">0.80</span>  <span class="cm">— HIGH confidence (model trusted)</span><br /><br />
+<span class="cm">Example: new user, first order, model=750</span><br />
+<span class="c2">new</span> = 0.20×750 + 0.80×700 = <span class="nb">710</span>
+      </div>
+      <div class="lbl" style="margin-top:14px">④ Final Formula</div>
+      <div class="formula-box">
+<span class="cm">RawScore = 0.25×D1 + 0.25×D2 + 0.20×D3</span><br />
+<span class="cm">         + 0.15×D4 + 0.15×D5</span><br /><br />
+<span class="c2">TrustScore</span> = clamp(round(<span class="nb">10</span> × RawScore), <span class="nb">0</span>, <span class="nb">1000</span>)<br /><br />
+<span class="cm">Each Dᵢ ∈ [0,100] → RawScore ∈ [0,100]</span><br />
+<span class="cm">TrustScore ∈ [0, 1000]  (guaranteed)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">6</div><div class="sh-text"><h2>Trust Tiers &amp; Privilege System</h2><p>Four tiers · Evidence-gated benefits · New user initial state</p></div></div>
+  <div class="grid4" style="margin-bottom:20px">
+    <div class="tier-card tc-r">
+      <div class="tr-range">0–399</div>
+      <div class="tr-name">Restricted</div>
+      <div class="tr-desc">Significant reliability concerns</div>
+      <span class="tr-ben" style="background:var(--r2);color:var(--r)">0 benefits</span>
+    </div>
+    <div class="tier-card tc-o">
+      <div class="tr-range">400–599</div>
+      <div class="tr-name">Standard</div>
+      <div class="tr-desc">Developing track record</div>
+      <span class="tr-ben" style="background:var(--o2);color:var(--o)">COD unlockable</span>
+    </div>
+    <div class="tier-card tc-b">
+      <div class="tr-range">600–799</div>
+      <div class="tr-name">Trusted</div>
+      <div class="tr-desc">Reliable marketplace participant</div>
+      <span class="tr-ben" style="background:var(--b3);color:var(--b)">3 benefits</span>
+    </div>
+    <div class="tier-card tc-p">
+      <div class="tr-range">800–1000</div>
+      <div class="tr-name">Elite</div>
+      <div class="tr-desc">Exceptional reliability</div>
+      <span class="tr-ben" style="background:var(--p3);color:var(--p2)">All 4 benefits</span>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="lbl">Buyer Benefits</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:8px">
+        <tr><td style="padding:5px 0;border-bottom:1px solid var(--bdr);font-weight:600">COD_AVAILABLE</td><td style="padding:5px 0;border-bottom:1px solid var(--bdr);color:var(--m)">Score ≥ 600 + MEDIUM <em>or</em> Score ≥ 750</td></tr>
+        <tr><td style="padding:5px 0;border-bottom:1px solid var(--bdr);font-weight:600">EXCLUSIVE_VOUCHER</td><td style="padding:5px 0;border-bottom:1px solid var(--bdr);color:var(--m)">Score ≥ 650 + MEDIUM confidence</td></tr>
+        <tr><td style="padding:5px 0;border-bottom:1px solid var(--bdr);font-weight:600">FREE_DELIVERY</td><td style="padding:5px 0;border-bottom:1px solid var(--bdr);color:var(--m)">Score ≥ 700 + MEDIUM confidence</td></tr>
+        <tr><td style="padding:5px 0;font-weight:600">PRIORITY_SUPPORT</td><td style="padding:5px 0;color:var(--m)">Score ≥ 800 + HIGH confidence</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="lbl">Seller Benefits</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:8px">
+        <tr><td style="padding:5px 0;border-bottom:1px solid var(--bdr);font-weight:600">SEARCH_VISIBILITY</td><td style="padding:5px 0;border-bottom:1px solid var(--bdr);color:var(--m)">Score ≥ 600 + MEDIUM confidence</td></tr>
+        <tr><td style="padding:5px 0;border-bottom:1px solid var(--bdr);font-weight:600">TRUSTED_BADGE</td><td style="padding:5px 0;border-bottom:1px solid var(--bdr);color:var(--m)">Score ≥ 700 + MEDIUM confidence</td></tr>
+        <tr><td style="padding:5px 0;border-bottom:1px solid var(--bdr);font-weight:600">REDUCED_PLATFORM_FEE</td><td style="padding:5px 0;border-bottom:1px solid var(--bdr);color:var(--m)">Score ≥ 750 + HIGH confidence</td></tr>
+        <tr><td style="padding:5px 0;font-weight:600">PROMOTIONAL_CREDITS</td><td style="padding:5px 0;color:var(--m)">Score ≥ 800 + HIGH confidence</td></tr>
+      </table>
+    </div>
+  </div>
+  <div style="margin-top:14px;background:var(--g2);border:1px solid var(--g3);border-radius:10px;padding:14px 18px;font-size:13px;color:#15803d">
+    <strong>🆕 New User Initial State:</strong> Every new account starts at <strong>700 / LOW / TRUSTED</strong>. The score of 700 is a neutral benefit of the doubt — but LOW confidence means <em>no benefits are unlocked</em> until sufficient behavioural evidence accumulates. This prevents privilege farming on day one.
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">7</div><div class="sh-text"><h2>ML Methodology — XGBoost</h2><p>Synthetic dataset · Chronological split · Leakage-free training · Evaluation results</p></div></div>
+  <div class="grid2">
+    <div>
+      <div class="lbl">Model Performance (Test Set)</div>
+      <div class="card" style="margin-top:8px">
+        <div class="ml-metric"><div class="ml-metric__lbl"></div><div class="ml-vals"><div class="ml-val"><span class="ml-val__n" style="font-size:12px;color:var(--m)">BUYER</span></div><div class="ml-val"><span class="ml-val__n" style="font-size:12px;color:var(--m)">SELLER</span></div></div></div>
+        <div class="ml-metric"><div class="ml-metric__lbl">F1 Score</div><div class="ml-vals"><div class="ml-val"><span class="ml-val__n">0.9855</span></div><div class="ml-val"><span class="ml-val__n">0.9977</span></div></div></div>
+        <div class="ml-metric"><div class="ml-metric__lbl">ROC-AUC</div><div class="ml-vals"><div class="ml-val"><span class="ml-val__n">0.9981</span></div><div class="ml-val"><span class="ml-val__n">1.0000</span></div></div></div>
+        <div class="ml-metric"><div class="ml-metric__lbl">Precision</div><div class="ml-vals"><div class="ml-val"><span class="ml-val__n">0.9784</span></div><div class="ml-val"><span class="ml-val__n">1.0000</span></div></div></div>
+        <div class="ml-metric"><div class="ml-metric__lbl">Recall</div><div class="ml-vals"><div class="ml-val"><span class="ml-val__n">0.9927</span></div><div class="ml-val"><span class="ml-val__n">0.9953</span></div></div></div>
+        <div class="ml-metric"><div class="ml-metric__lbl">Accuracy</div><div class="ml-vals"><div class="ml-val"><span class="ml-val__n">0.9822</span></div><div class="ml-val"><span class="ml-val__n">0.9956</span></div></div></div>
+      </div>
+      <div style="margin-top:12px" class="card">
+        <div class="lbl">Train/Val/Test Split</div>
+        <div style="margin-top:8px;display:flex;gap:0;border-radius:8px;overflow:hidden;height:24px">
+          <div style="width:70%;background:#2563eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">Train 70%</div>
+          <div style="width:15%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">Val 15%</div>
+          <div style="width:15%;background:#16a34a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">Test 15%</div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--m)">Chronological split — temporal order preserved. ~4,500 total synthetic records across 12 behavioural profiles.</div>
+      </div>
+    </div>
+    <div>
+      <div class="lbl">XGBoost Hyperparameters</div>
+      <div class="code" style="margin-top:8px">
+<span class="kw">XGBClassifier</span>(<br />
+    n_estimators   = <span class="nb">200</span>,<br />
+    max_depth      = <span class="nb">4</span>,<br />
+    learning_rate  = <span class="nb">0.1</span>,<br />
+    subsample      = <span class="nb">0.8</span>,<br />
+    colsample_bytree = <span class="nb">0.8</span>,<br />
+    random_state   = <span class="nb">42</span>,<br />
+)
+      </div>
+      <div class="lbl" style="margin-top:14px">Buyer Feature Vector (11 features)</div>
+      <div style="margin-top:6px">
+        <span class="feat-chip">order_completion_rate</span><span class="feat-chip">return_rate</span><span class="feat-chip">payment_success_rate</span><span class="feat-chip">cancellation_rate</span><span class="feat-chip">referral_count</span><span class="feat-chip">review_count</span><span class="feat-chip">total_orders</span><span class="feat-chip">completed_orders</span><span class="feat-chip">total_cancellations</span><span class="feat-chip">total_returns</span><span class="feat-chip">decayed_event_weight</span>
+      </div>
+      <div class="lbl" style="margin-top:12px">Leakage Prevention</div>
+      <div style="background:var(--g2);border:1px solid var(--g3);border-radius:8px;padding:10px 14px;font-size:12px;color:#15803d;margin-top:6px">Features computed from <strong>past events only</strong>. Target variable derived from the <strong>most recent</strong> transaction window. No future data is visible during training.</div>
+    </div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">8</div><div class="sh-text"><h2>Test Suite Results</h2><p>252 tests · 6 test files · 0 failures · SQLite in-memory isolation · No PostgreSQL required</p></div></div>
+
+  <div class="test-file">
+    <div class="test-file__header">
+      <span class="test-file__name">test_phase2_auth.py</span>
+      <span class="test-file__count">✓ 28 passed</span>
+    </div>
+    <div class="test-cases">
+      <span class="tc-pill">register_buyer</span><span class="tc-pill">register_seller</span><span class="tc-pill">duplicate_email_raises_409</span><span class="tc-pill">login_correct_credentials</span><span class="tc-pill">login_wrong_password_raises_401</span><span class="tc-pill">jwt_round_trip</span><span class="tc-pill">jwt_contains_role</span><span class="tc-pill">first_buyer_id</span><span class="tc-pill">first_seller_id</span><span class="tc-pill">sequential_buyer_ids</span><span class="tc-pill">buyer_and_seller_ids_independent</span><span class="tc-pill">email_stored_lowercase</span><span class="tc-pill">password_not_stored_plaintext</span><span class="tc-pill">expired_token_rejected</span>
+    </div>
+  </div>
+
+  <div class="test-file">
+    <div class="test-file__header">
+      <span class="test-file__name">test_phase3_marketplace.py</span>
+      <span class="test-file__count">✓ 27 passed</span>
+    </div>
+    <div class="test-cases">
+      <span class="tc-pill">place_order_creates_order</span><span class="tc-pill">place_order_fires_payment_event</span><span class="tc-pill">place_order_decrements_stock</span><span class="tc-pill">insufficient_stock_raises_400</span><span class="tc-pill">cannot_buy_own_product</span><span class="tc-pill">cancel_paid_order_by_buyer</span><span class="tc-pill">cancel_by_seller_fires_seller_cancelled</span><span class="tc-pill">ship_order_by_seller</span><span class="tc-pill">complete_order_by_buyer</span><span class="tc-pill">request_return_on_completed_order</span><span class="tc-pill">submit_review_on_completed_order</span><span class="tc-pill">duplicate_review_raises_409</span><span class="tc-pill">buyer_sees_own_orders</span><span class="tc-pill">seller_sees_own_orders</span>
+    </div>
+  </div>
+
+  <div class="test-file">
+    <div class="test-file__header">
+      <span class="test-file__name">test_phase4_events.py</span>
+      <span class="test-file__count">✓ 26 passed</span>
+    </div>
+    <div class="test-cases">
+      <span class="tc-pill">record_single_event</span><span class="tc-pill">event_id_is_unique</span><span class="tc-pill">events_are_user_scoped</span><span class="tc-pill">all_buyer_events_defined</span><span class="tc-pill">all_seller_events_defined</span><span class="tc-pill">meaningful_events_non_empty</span><span class="tc-pill">negative_events_non_empty</span><span class="tc-pill">meaningful_and_negative_no_overlap</span><span class="tc-pill">ship_fires_order_fulfilled_for_seller</span><span class="tc-pill">complete_fires_completed_for_buyer</span><span class="tc-pill">cancel_by_buyer_fires_order_cancelled</span><span class="tc-pill">completed_order_increments_meaningful_count</span><span class="tc-pill">cancelled_order_does_not_increment_meaningful_count</span>
+    </div>
+  </div>
+
+  <div class="test-file">
+    <div class="test-file__header">
+      <span class="test-file__name">test_phase5_features.py</span>
+      <span class="test-file__count">✓ 29 passed</span>
+    </div>
+    <div class="test-cases">
+      <span class="tc-pill">decay_at_zero_days_is_one</span><span class="tc-pill">decay_at_half_life_is_half</span><span class="tc-pill">decay_at_180_days</span><span class="tc-pill">decay_at_270_days</span><span class="tc-pill">decay_weight_never_exceeds_one</span><span class="tc-pill">lambda_value</span><span class="tc-pill">neutral_features_returns_all_keys</span><span class="tc-pill">new_user_gets_neutral_features</span><span class="tc-pill">completed_order_raises_completion_rate</span><span class="tc-pill">cancellation_raises_cancellation_rate</span><span class="tc-pill">time_decay_fresh_event_more_impactful</span><span class="tc-pill">feature_weight_decreases_as_events_age</span><span class="tc-pill">recent_event_outweighs_old_event</span><span class="tc-pill">older_event_has_lower_weight_than_recent</span>
+    </div>
+  </div>
+
+  <div class="test-file">
+    <div class="test-file__header">
+      <span class="test-file__name">test_phase6_trust.py</span>
+      <span class="test-file__count">✓ 57 passed</span>
+    </div>
+    <div class="test-cases">
+      <span class="tc-pill">initial_trust_score_is_700</span><span class="tc-pill">initial_confidence_is_low</span><span class="tc-pill">initial_tier_is_trusted</span><span class="tc-pill">score_0_is_restricted</span><span class="tc-pill">score_400_is_standard</span><span class="tc-pill">score_600_is_trusted</span><span class="tc-pill">score_800_is_elite</span><span class="tc-pill">score_1000_is_elite</span><span class="tc-pill">clamp_0</span><span class="tc-pill">clamp_1000</span><span class="tc-pill">score_never_below_0</span><span class="tc-pill">score_never_above_1000</span><span class="tc-pill">six_meaningful_events_is_medium</span><span class="tc-pill">thirty_one_events_is_high</span><span class="tc-pill">confidence_never_decreases_with_more_evidence</span><span class="tc-pill">smoothing_low_confidence_limits_swing</span><span class="tc-pill">positive_behavior_does_not_decrease_score</span><span class="tc-pill">repeated_cancellations_lower_or_hold_score</span><span class="tc-pill">perfect_buyer_score_near_1000</span><span class="tc-pill">perfect_seller_score_near_1000</span><span class="tc-pill">cod_unlocked_at_600_medium</span><span class="tc-pill">cod_unlocked_at_750_any_confidence</span><span class="tc-pill">seller_trusted_badge_at_700_medium</span><span class="tc-pill">all_buyer_benefits_at_elite_high</span><span class="tc-pill">infrequent_buyer_not_penalised</span>
+    </div>
+  </div>
+
+  <div class="test-file">
+    <div class="test-file__header">
+      <span class="test-file__name">test_phase16_full_suite.py + test_phase19_simulate.py</span>
+      <span class="test-file__count">✓ 63 + 22 = 85 passed</span>
+    </div>
+    <div class="test-cases">
+      <span class="tc-pill">new_buyer_starts_at_700</span><span class="tc-pill">new_buyer_no_active_benefits</span><span class="tc-pill">completed_orders_increase_score</span><span class="tc-pill">cancellations_do_not_raise_score</span><span class="tc-pill">score_not_below_0_after_extreme_negative</span><span class="tc-pill">recent_payment_outweighs_180day_old</span><span class="tc-pill">270_day_old_event_has_minimal_weight</span><span class="tc-pill">reliable_buyer_high_probability</span><span class="tc-pill">unreliable_buyer_low_probability</span><span class="tc-pill">blend_no_evidence_is_pure_rule</span><span class="tc-pill">blend_high_evidence_includes_ml</span><span class="tc-pill">analytics_requires_admin</span><span class="tc-pill">trust_distribution_returns_labels</span><span class="tc-pill">expired_token_rejected</span><span class="tc-pill">buyer_cannot_view_other_buyers_trust</span><span class="tc-pill">privilege_flow_buyer</span><span class="tc-pill">privilege_can_be_downgraded</span><span class="tc-pill">simulate_returns_expected_keys</span><span class="tc-pill">simulation_does_not_change_trust_score</span><span class="tc-pill">simulation_does_not_add_score_history</span><span class="tc-pill">seller_cancellations_lower_projected_score</span><span class="tc-pill">cannot_simulate_other_buyers_score</span>
+    </div>
+  </div>
+
+  <div class="test-summary">
+    <div class="ts-stat"><span class="ts-stat__v">252</span><span class="ts-stat__l">Total Tests</span></div>
+    <div class="ts-bar">
+      <div class="ts-bar-track"><div class="ts-bar-fill" style="width:100%"></div></div>
+      <div class="ts-bar-lbl">252 passed · 0 failed · 0 errors · 0 skipped · avg 72s runtime</div>
+    </div>
+    <div class="ts-stat"><span class="ts-stat__v">100%</span><span class="ts-stat__l">Pass Rate</span></div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">9</div><div class="sh-text"><h2>API Reference</h2><p>REST endpoints · JWT Bearer auth · JSON responses · FastAPI auto-docs at /docs</p></div></div>
+  <div class="grid2">
+    <div>
+      <div class="lbl" style="margin-bottom:8px">Authentication</div>
+      <table class="api-table">
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/auth/register</td><td>Register buyer or seller</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/auth/login</td><td>Login → JWT token</td></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/auth/me</td><td>Current user profile</td></tr>
+      </table>
+      <div class="lbl" style="margin:14px 0 8px">Marketplace</div>
+      <table class="api-table">
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/products</td><td>List products</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/products</td><td>Create product (seller)</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/orders</td><td>Place order + payment</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/orders/{id}/ship</td><td>Mark shipped (seller)</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/orders/{id}/complete</td><td>Confirm receipt (buyer)</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/orders/{id}/cancel</td><td>Cancel order</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/orders/{id}/return</td><td>Request return</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/orders/{id}/review</td><td>Submit review (1–5★)</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="lbl" style="margin-bottom:8px">TrustGrid Engine</div>
+      <table class="api-table">
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/trust/me</td><td>Full trust profile</td></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/trust/{id}/history</td><td>Score change log</td></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/trust/{id}/breakdown</td><td>Per-dimension scores</td></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/trust/{id}/benefits</td><td>Active / inactive privileges</td></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/trust/{id}/explain</td><td>Plain-English explanation</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/trust/{id}/simulate</td><td>What-if score projection</td></tr>
+        <tr><td><span class="method m-post">POST</span></td><td class="ep">/trust/referral</td><td>Claim referral reward</td></tr>
+      </table>
+      <div class="lbl" style="margin:14px 0 8px">Admin</div>
+      <table class="api-table">
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/admin/analytics</td><td>Platform-wide stats</td></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/admin/users</td><td>User list with trust data</td></tr>
+        <tr><td><span class="method m-get">GET</span></td><td class="ep">/admin/trust-distribution</td><td>Score histogram (10 buckets)</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">10</div><div class="sh-text"><h2>Database Schema</h2><p>PostgreSQL · 13 tables · Immutable event log · Materialized feature vector</p></div></div>
+  <div class="grid2">
+    <div>
+      <div class="db-table">
+        <div class="db-table__head">users</div>
+        <div class="db-table__rows">
+          <div class="db-col"><span class="db-pk">PK</span><span class="db-name">id</span><span class="db-type">SERIAL</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">user_id</span><span class="db-type">VARCHAR(20) UNIQUE</span><span class="db-note">BUY-/SEL-/ADM-</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">email, name, password_hash</span><span class="db-type">VARCHAR</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">role</span><span class="db-type">ENUM(buyer,seller,admin)</span></div>
+        </div>
+      </div>
+      <div class="db-table">
+        <div class="db-table__head">trust_events <span style="opacity:.7;font-weight:400">(append-only)</span></div>
+        <div class="db-table__rows">
+          <div class="db-col"><span class="db-fk">FK</span><span class="db-name">user_id</span><span class="db-type">→ users.user_id</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">event_id</span><span class="db-type">VARCHAR UNIQUE</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">event_type</span><span class="db-type">VARCHAR(60)</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">metadata</span><span class="db-type">JSONB</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">created_at</span><span class="db-type">TIMESTAMPTZ</span><span class="db-note">indexed</span></div>
+        </div>
+      </div>
+      <div class="db-table">
+        <div class="db-table__head">trust_scores</div>
+        <div class="db-table__rows">
+          <div class="db-col"><span class="db-fk">FK</span><span class="db-name">user_id</span><span class="db-type">UNIQUE → users</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">trust_score</span><span class="db-type">INTEGER [0–1000]</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">confidence</span><span class="db-type">ENUM(LOW,MEDIUM,HIGH)</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">tier</span><span class="db-type">ENUM(RESTRICTED…ELITE)</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">dim_scores</span><span class="db-type">JSONB</span><span class="db-note">{"d1":92.0,…}</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="db-table">
+        <div class="db-table__head">behavior_features <span style="opacity:.7;font-weight:400">(materialized)</span></div>
+        <div class="db-table__rows">
+          <div class="db-col"><span class="db-fk">FK</span><span class="db-name">user_id</span><span class="db-type">UNIQUE → users</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">order_completion_rate</span><span class="db-type">FLOAT</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">return_rate</span><span class="db-type">FLOAT</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">cancellation_rate</span><span class="db-type">FLOAT</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">payment_success_rate</span><span class="db-type">FLOAT</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">fulfillment_rate</span><span class="db-type">FLOAT</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">avg_rating_received</span><span class="db-type">FLOAT</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">decayed_event_weight</span><span class="db-type">FLOAT</span><span class="db-note">evidence volume</span></div>
+        </div>
+      </div>
+      <div class="db-table">
+        <div class="db-table__head">score_history <span style="opacity:.7;font-weight:400">(audit trail)</span></div>
+        <div class="db-table__rows">
+          <div class="db-col"><span class="db-fk">FK</span><span class="db-name">user_id</span><span class="db-type">→ users</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">old_score, new_score</span><span class="db-type">INTEGER</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">score_change</span><span class="db-type">INTEGER</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">reason</span><span class="db-type">VARCHAR(255)</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">event_type</span><span class="db-type">VARCHAR(60)</span></div>
+        </div>
+      </div>
+      <div class="db-table">
+        <div class="db-table__head">privileges</div>
+        <div class="db-table__rows">
+          <div class="db-col"><span class="db-fk">FK</span><span class="db-name">user_id</span><span class="db-type">→ users</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">privilege_name</span><span class="db-type">VARCHAR(100)</span></div>
+          <div class="db-col"><span style="width:24px"></span><span class="db-name">status</span><span class="db-type">active | inactive</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">11</div><div class="sh-text"><h2>What-If Score Simulator</h2><p>POST /trust/{user_id}/simulate — read-only projection, no DB mutation</p></div></div>
+  <div class="grid2">
+    <div>
+      <div class="lbl">How It Works</div>
+      <div style="margin-top:8px;font-size:13px;line-height:1.8;color:var(--t)">
+        <div style="display:flex;gap:10px;margin-bottom:8px"><span style="background:var(--b);color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px">1</span><span>Load current feature vector from <code style="font-size:11px;background:var(--sf);padding:1px 5px;border-radius:4px;border:1px solid var(--bdr)">behavior_features</code></span></div>
+        <div style="display:flex;gap:10px;margin-bottom:8px"><span style="background:var(--b);color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px">2</span><span>Apply hypothetical event counts — recompute rates in-memory only</span></div>
+        <div style="display:flex;gap:10px;margin-bottom:8px"><span style="background:var(--b);color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px">3</span><span>Re-run full trust engine pipeline on projected features</span></div>
+        <div style="display:flex;gap:10px"><span style="background:var(--b);color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px">4</span><span>Return projected score, tier, delta, dimension scores — <strong>nothing written to DB</strong></span></div>
+      </div>
+      <div style="margin-top:14px" class="lbl">Input Parameters</div>
+      <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+        <div style="background:var(--g2);border:1px solid var(--g3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px">✅</div><strong>extra_completions</strong><div style="color:var(--m);font-size:11px">0–100</div></div>
+        <div style="background:var(--r2);border:1px solid var(--r3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px">❌</div><strong>extra_cancellations</strong><div style="color:var(--m);font-size:11px">0–100</div></div>
+        <div style="background:var(--o2);border:1px solid var(--o3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px">↩</div><strong>extra_returns</strong><div style="color:var(--m);font-size:11px">0–100</div></div>
+        <div style="background:var(--b3);border:1px solid var(--b4);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px">💳</div><strong>extra_payments</strong><div style="color:var(--m);font-size:11px">0–100</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="lbl">Example API Response</div>
+      <div class="sim-box" style="margin-top:8px;font-size:11.5px">
+{<br />
+  <span class="k">"user_id"</span>: <span class="s">"BUY-10003"</span>,<br />
+  <span class="k">"current_score"</span>: <span class="n">452</span>,<br />
+  <span class="k">"current_tier"</span>: <span class="s">"STANDARD"</span>,<br />
+  <span class="k">"current_confidence"</span>: <span class="s">"MEDIUM"</span>,<br />
+  <span class="k">"projected_score"</span>: <span class="n">531</span>,<br />
+  <span class="k">"projected_tier"</span>: <span class="s">"STANDARD"</span>,<br />
+  <span class="k">"score_delta"</span>: <span class="n">+79</span>,<br />
+  <span class="k">"points_to_next_tier"</span>: <span class="n">69</span>,<br />
+  <span class="k">"projected_dimensions"</span>: {<br />
+    <span class="k">"order_reliability"</span>: <span class="n">78.4</span>,<br />
+    <span class="k">"cancellation_behaviour"</span>: <span class="n">62.1</span>, <span class="c">...</span><br />
+  },<br />
+  <span class="k">"simulation_inputs"</span>: {<br />
+    <span class="k">"extra_completions"</span>: <span class="n">10</span>,<br />
+    <span class="k">"extra_cancellations"</span>: <span class="n">0</span>, <span class="c">...</span><br />
+  }<br />
+}
+      </div>
+      <div style="margin-top:12px;background:var(--g2);border:1px solid var(--g3);border-radius:8px;padding:10px 14px;font-size:12px;color:#15803d">
+        <strong>Read-only guarantee</strong> — verified by 2 dedicated tests:<br />
+        <code style="font-size:11px">test_simulation_does_not_change_trust_score</code><br />
+        <code style="font-size:11px">test_simulation_does_not_add_score_history</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">12</div><div class="sh-text"><h2>Demo Users &amp; Seeded Results</h2><p>7 users demonstrating the full score range — all passwords: Demo1234!</p></div></div>
+  <table class="du-table">
+    <thead>
+      <tr><th>Email</th><th>ID</th><th>Score</th><th>Visual</th><th>Tier</th><th>Confidence</th><th>Scenario</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>alice@demo.com</td>
+        <td><span class="uid">BUY-10001</span></td>
+        <td><strong>997</strong></td>
+        <td><div class="score-bar-wrap"><div class="score-bar-fill" style="width:99.7%;background:#7c3aed"></div></div></td>
+        <td><span class="tbg t-E">ELITE</span></td>
+        <td><span class="tbg c-H">HIGH</span></td>
+        <td style="color:var(--m);font-size:12px">35 completed orders + referral. Perfect behaviour.</td>
+      </tr>
+      <tr>
+        <td>bob@demo.com</td>
+        <td><span class="uid">BUY-10002</span></td>
+        <td><strong>489</strong></td>
+        <td><div class="score-bar-wrap"><div class="score-bar-fill" style="width:48.9%;background:#f59e0b"></div></div></td>
+        <td><span class="tbg t-S">STANDARD</span></td>
+        <td><span class="tbg c-H">HIGH</span></td>
+        <td style="color:var(--m);font-size:12px">10 completions but all back-dated 120 days — decay reduces score.</td>
+      </tr>
+      <tr>
+        <td>charlie@demo.com</td>
+        <td><span class="uid">BUY-10003</span></td>
+        <td><strong>452</strong></td>
+        <td><div class="score-bar-wrap"><div class="score-bar-fill" style="width:45.2%;background:#f59e0b"></div></div></td>
+        <td><span class="tbg t-S">STANDARD</span></td>
+        <td><span class="tbg c-M">MEDIUM</span></td>
+        <td style="color:var(--m);font-size:12px">8 cancellations + 4 completions. Cancellation rate ~67%.</td>
+      </tr>
+      <tr>
+        <td>diana@demo.com</td>
+        <td><span class="uid">BUY-10004</span></td>
+        <td><strong>700</strong></td>
+        <td><div class="score-bar-wrap"><div class="score-bar-fill" style="width:70%;background:#3b82f6"></div></div></td>
+        <td><span class="tbg t-T">TRUSTED</span></td>
+        <td><span class="tbg c-L">LOW</span></td>
+        <td style="color:var(--m);font-size:12px">Brand new. Registration default. No benefits unlocked.</td>
+      </tr>
+      <tr>
+        <td>seller1@demo.com</td>
+        <td><span class="uid">SEL-20001</span></td>
+        <td><strong>991</strong></td>
+        <td><div class="score-bar-wrap"><div class="score-bar-fill" style="width:99.1%;background:#7c3aed"></div></div></td>
+        <td><span class="tbg t-E">ELITE</span></td>
+        <td><span class="tbg c-H">HIGH</span></td>
+        <td style="color:var(--m);font-size:12px">40 fulfilled orders. All benefits active. Trusted Badge.</td>
+      </tr>
+      <tr>
+        <td>seller2@demo.com</td>
+        <td><span class="uid">SEL-20002</span></td>
+        <td><strong>816</strong></td>
+        <td><div class="score-bar-wrap"><div class="score-bar-fill" style="width:81.6%;background:#7c3aed"></div></div></td>
+        <td><span class="tbg t-E">ELITE</span></td>
+        <td><span class="tbg c-M">MEDIUM</span></td>
+        <td style="color:var(--m);font-size:12px">12 fulfillments, 6 cancellations — average seller.</td>
+      </tr>
+      <tr>
+        <td>admin@demo.com</td>
+        <td><span class="uid">ADM-30001</span></td>
+        <td>—</td>
+        <td>—</td>
+        <td>—</td>
+        <td>—</td>
+        <td style="color:var(--m);font-size:12px">Full admin analytics: tier dist, events, score history.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">13</div><div class="sh-text"><h2>Technology Stack</h2><p>Production-grade libraries · All actively maintained · No EOL components</p></div></div>
+  <div class="stack-grid">
+    <div class="stack-item"><div class="stack-icon">⚡</div><div class="stack-name">FastAPI</div><div class="stack-ver">0.115 · REST API</div></div>
+    <div class="stack-item"><div class="stack-icon">🗄️</div><div class="stack-name">PostgreSQL</div><div class="stack-ver">14+ · Primary DB</div></div>
+    <div class="stack-item"><div class="stack-icon">⚛️</div><div class="stack-name">React 18</div><div class="stack-ver">18.3 · Frontend</div></div>
+    <div class="stack-item"><div class="stack-icon">🌲</div><div class="stack-name">XGBoost</div><div class="stack-ver">2.x · ML Model</div></div>
+    <div class="stack-item"><div class="stack-icon">🔐</div><div class="stack-name">JWT + bcrypt</div><div class="stack-ver">python-jose · passlib</div></div>
+    <div class="stack-item"><div class="stack-icon">🧱</div><div class="stack-name">SQLAlchemy 2</div><div class="stack-ver">ORM · 13 models</div></div>
+    <div class="stack-item"><div class="stack-icon">⚡</div><div class="stack-name">Vite 6</div><div class="stack-ver">Build · HMR</div></div>
+    <div class="stack-item"><div class="stack-icon">🐼</div><div class="stack-name">pandas 2</div><div class="stack-ver">Data processing</div></div>
+    <div class="stack-item"><div class="stack-icon">✅</div><div class="stack-name">pytest 8</div><div class="stack-ver">252 tests · SQLite</div></div>
+    <div class="stack-item"><div class="stack-icon">🔷</div><div class="stack-name">Pydantic v2</div><div class="stack-ver">Schema validation</div></div>
+  </div>
+  <div style="margin-top:20px" class="card">
+    <div class="lbl">Project File Counts</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:10px;text-align:center;font-size:13px">
+      <div><strong style="font-size:22px;font-family:var(--mono);color:var(--b)">40</strong><div style="color:var(--m);font-size:11px">Python source files</div></div>
+      <div><strong style="font-size:22px;font-family:var(--mono);color:var(--p2)">45</strong><div style="color:var(--m);font-size:11px">React / JS / CSS files</div></div>
+      <div><strong style="font-size:22px;font-family:var(--mono);color:var(--g)">252</strong><div style="color:var(--m);font-size:11px">Automated tests</div></div>
+      <div><strong style="font-size:22px;font-family:var(--mono);color:var(--o)">13</strong><div style="color:var(--m);font-size:11px">DB tables</div></div>
+      <div><strong style="font-size:22px;font-family:var(--mono);color:var(--r)">19</strong><div style="color:var(--m);font-size:11px">Trust event types</div></div>
+    </div>
+  </div>
+</div>
+
+
+<div class="slide">
+  <div class="sh"><div class="sn">14</div><div class="sh-text"><h2>Limitations &amp; Future Scope</h2><p>Honest academic positioning and roadmap</p></div></div>
+  <div class="grid2">
+    <div>
+      <div class="lbl" style="margin-bottom:12px">Current Limitations</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--r);font-size:16px;flex-shrink:0">●</span><div><strong>Synthetic training data</strong> — XGBoost trained on simulated profiles. Real-world behaviour distributions will differ.</div></div>
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--r);font-size:16px;flex-shrink:0">●</span><div><strong>No anomaly detection</strong> — Sudden score spikes from account takeovers or coordinated fake activity are not flagged.</div></div>
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--r);font-size:16px;flex-shrink:0">●</span><div><strong>Simulated payments</strong> — Payment events use a 95% fixed success rate. No real payment processor.</div></div>
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--r);font-size:16px;flex-shrink:0">●</span><div><strong>Single-marketplace scope</strong> — Trust scores do not transfer across partner platforms.</div></div>
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--r);font-size:16px;flex-shrink:0">●</span><div><strong>No fairness audit</strong> — Demographic impact of scoring has not been formally tested.</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="lbl" style="margin-bottom:12px">Future Enhancements</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--g);font-size:16px;flex-shrink:0">●</span><div><strong>Anomaly detection</strong> — Isolation Forest or LSTM-based drift detection for sudden behavioural shifts.</div></div>
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--g);font-size:16px;flex-shrink:0">●</span><div><strong>LSTM / Transformer</strong> — Sequence modelling for temporal event order, not just aggregate features.</div></div>
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--g);font-size:16px;flex-shrink:0">●</span><div><strong>Graph-based trust network</strong> — Detect fake referral rings and colluding user clusters.</div></div>
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--g);font-size:16px;flex-shrink:0">●</span><div><strong>Kafka event streaming</strong> — Real-time scoring at marketplace scale with event-driven architecture.</div></div>
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--g);font-size:16px;flex-shrink:0">●</span><div><strong>SHAP explainability</strong> — Feature importance visible in the admin dashboard per-user.</div></div>
+        <div style="display:flex;gap:10px;font-size:12px"><span style="color:var(--g);font-size:16px;flex-shrink:0">●</span><div><strong>Cross-platform reputation</strong> — Allow trust scores to transfer between partner marketplaces.</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;background:linear-gradient(135deg,#0f172a,#1e3a8a);border-radius:12px;padding:24px 28px;color:#fff">
+    <div style="font-size:15px;font-weight:700;margin-bottom:10px">Academic Contribution</div>
+    <div style="font-size:13px;opacity:.88;line-height:1.7">TrustGrid demonstrates that a meaningful, dynamic trust score can be constructed from observable marketplace behaviour by integrating: <strong>(1)</strong> multi-dimensional behavioural scoring, <strong>(2)</strong> exponential time decay, <strong>(3)</strong> XGBoost reliability estimation, <strong>(4)</strong> evidence-gated confidence and privilege allocation, and <strong>(5)</strong> plain-language explainability — positioned against traditional static reputation systems that lack temporal sensitivity and behavioural depth.</div>
+  </div>
+</div>
+
+<div class="footer">Made with IBM Bob  ·  TrustGrid — Academic prototype. Not a production product.</div>
+</div>
+</body>
+</html>

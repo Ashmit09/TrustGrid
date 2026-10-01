@@ -1,40 +1,31 @@
 """
-User routes (profile lookup).
-  GET /users/me        — authenticated user's public profile
-  GET /users/{user_id} — admin or self lookup
+TrustGrid — Users API Router
+GET /users/me
+GET /users/{user_id}
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.db.session import get_db
-from app.schemas.auth import UserOut
-from app.services.user_service import get_user_by_id
-from app.core.dependencies import get_current_user_payload
+from app.db.database import get_db
+from app.schemas.auth import UserRead
+from app.services.auth_service import get_current_user, require_role
+from app.models.user import User
 
 router = APIRouter()
 
 
-@router.get("/me", response_model=UserOut, summary="Get authenticated user profile")
-def get_me(
-    payload: dict = Depends(get_current_user_payload),
-    db: Session   = Depends(get_db),
-):
-    user = get_user_by_id(db, payload["sub"])
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    return user
+@router.get("/me", response_model=UserRead)
+def get_my_profile(current_user: User = Depends(get_current_user)):
+    return current_user
 
 
-@router.get("/{user_id}", response_model=UserOut, summary="Get user by user_id (self or admin)")
-def get_user(
+@router.get("/{user_id}", response_model=UserRead)
+def get_user_by_id(
     user_id: str,
-    payload: dict = Depends(get_current_user_payload),
-    db: Session   = Depends(get_db),
+    db: Session = Depends(get_db),
+    _: User = Depends(require_role("admin")),
 ):
-    # Allow only the user themselves or an admin
-    if payload["sub"] != user_id and payload.get("role") != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied.")
-    user = get_user_by_id(db, user_id)
+    user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
     return user

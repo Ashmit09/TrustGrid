@@ -1,53 +1,42 @@
 """
-Pydantic schemas for TrustGrid state, score history, and privileges.
+TrustGrid — Trust API Schemas
 """
-from datetime import datetime
-from typing import Optional, List, Dict
 from pydantic import BaseModel
+from typing import Dict, List, Optional, Any
 
 
-class DimScores(BaseModel):
-    """Per-dimension score breakdown (0–100 each)."""
-    # Buyer dimensions
-    order_reliability:      Optional[float] = None
-    return_behaviour:       Optional[float] = None
-    payment_reliability:    Optional[float] = None
-    cancellation_behaviour: Optional[float] = None
-    platform_engagement:    Optional[float] = None
-    # Seller dimensions
-    order_fulfillment:      Optional[float] = None
-    delivery_performance:   Optional[float] = None
-    customer_satisfaction:  Optional[float] = None
-    return_dispute_handling: Optional[float] = None
-    platform_reliability:   Optional[float] = None
+class DimensionBreakdown(BaseModel):
+    model_config = {"extra": "allow"}
 
 
-class ScoreChangeOut(BaseModel):
+class TrustStateResponse(BaseModel):
+    user_id: str
+    trust_score: int
+    confidence: str
+    tier: str
+    breakdown: Dict[str, float]
+    rule_score: Optional[float]
+    ml_score: Optional[float]
+    combined_score: Optional[float]
+    benefits: List[str]
+    explanation: Optional[Dict[str, Any]]
+
+
+class ScoreHistoryEntry(BaseModel):
+    old_score: int
+    new_score: int
     score_change: int
-    reason:       Optional[str]
-    event_type:   Optional[str]
-    created_at:   datetime
+    reason: Optional[str]
+    event_type: Optional[str]
+    created_at: Any
 
     model_config = {"from_attributes": True}
 
 
-class PrivilegeOut(BaseModel):
-    privilege_name: str
-    status:         str
-    reason:         Optional[str]
-
-    model_config = {"from_attributes": True}
-
-
-class TrustProfileOut(BaseModel):
-    """Full TrustGrid profile — returned by GET /trust/me."""
-    user_id:        str
-    trust_score:    int
-    confidence:     str
-    tier:           str
-    breakdown:      Optional[Dict] = None
-    recent_changes: List[ScoreChangeOut] = []
-    benefits:       List[str] = []
-    last_updated:   Optional[datetime] = None
-
-    model_config = {"from_attributes": True}
+class TrustEventEmit(BaseModel):
+    user_id: str
+    role: str
+    event_type: str
+    transaction_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+    impact_summary: Optional[str] = None

@@ -1,63 +1,52 @@
 """
-Product routes:
-  GET  /products             — public list
-  GET  /products/{id}        — public detail
-  POST /products             — seller creates
-  PUT  /products/{id}        — seller updates
-  GET  /products/my          — seller's own products
+TrustGrid — Products API
+GET    /products
+POST   /products         (seller only)
+GET    /products/{id}
 """
-from typing import Optional, List
-from fastapi import APIRouter, Depends, Query
+import uuid
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.db.session import get_db
-from app.schemas.product import ProductCreate, ProductUpdate, ProductOut
-from app.services.product_service import (
-    list_products, get_product, create_product, update_product, get_seller_products
-)
-from app.core.dependencies import get_current_user_payload, require_role
+from app.db.database import get_db
+from app.models.product import Product
+from app.models.user import User
+from app.schemas.marketplace import ProductCreate, ProductRead
+from app.services.auth_service import get_current_user, require_role
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[ProductOut], summary="List all active products")
-def list_all_products(
-    category: Optional[str] = Query(None),
-    search:   Optional[str] = Query(None),
-    skip:     int           = Query(0, ge=0),
-    limit:    int           = Query(40, ge=1, le=100),
+@router.get("", response_model=List[ProductRead])
+def list_products(db: Session = Depends(get_db)):
+    return db.query(Product).filter(Product.is_active == True).all()
+
+
+@router.post("", response_model=ProductRead, status_code=201)
+def create_product(
+    data: ProductCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("seller")),
 ):
-    return list_products(db, category=category, search=search, skip=skip, limit=limit)
+    product = Product(
+        product_id=f"PRD-{uuid.uuid4().hex[:8].upper()}",
+        seller_id=current_user.user_id,
+        title=data.title,
+        description=data.description,
+        price=data.price,
+        stock=data.stock,
+        category=data.category,
+    )
+    db.add(product)
+    db.commit()
+    db.refresh(product)
+    return product
 
 
-@router.get("/my", response_model=List[ProductOut], summary="Seller's own products")
-def my_products(
-    payload: dict = Depends(require_role("seller", "admin")),
-    db: Session   = Depends(get_db),
-):
-    return get_seller_products(db, payload["sub"])
-
-
-@router.get("/{product_id}", response_model=ProductOut, summary="Get product detail")
-def product_detail(product_id: int, db: Session = Depends(get_db)):
-    return get_product(db, product_id)
-
-
-@router.post("", response_model=ProductOut, status_code=201, summary="Create product (seller)")
-def create(
-    data:    ProductCreate,
-    payload: dict       = Depends(require_role("seller")),
-    db:      Session    = Depends(get_db),
-):
-    return create_product(db, seller_id=payload["sub"], data=data)
-
-
-@router.put("/{product_id}", response_model=ProductOut, summary="Update product (seller)")
-def update(
-    product_id: int,
-    data:       ProductUpdate,
-    payload:    dict    = Depends(require_role("seller")),
-    db:         Session = Depends(get_db),
-):
-    return update_product(db, product_id=product_id, seller_id=payload["sub"], data=data)
+@router.get("/{product_id}", response_model=ProductRead)
+def get_product(product_id: str, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.product_id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found.")
+    return product

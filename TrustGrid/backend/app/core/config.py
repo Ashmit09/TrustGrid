@@ -1,36 +1,32 @@
 """
-Application configuration — reads from .env via pydantic-settings.
+TrustGrid — Application Configuration
+Reads from environment variables / .env file via pydantic-settings.
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    # Database
-    DATABASE_URL: str = "postgresql://trustgrid_user:password@localhost:5432/trustgrid_db"
-    TESTING: bool = False
-
-    # JWT
-    SECRET_KEY: str = "change-me-in-production"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
-
-    # App
-    APP_ENV: str = "development"
-    APP_HOST: str = "127.0.0.1"
-    APP_PORT: int = 8000
-
-    # CORS
-    FRONTEND_ORIGIN: str = "http://localhost:5173"
-
-    # TrustGrid constants
-    INITIAL_TRUST_SCORE: int = 700
-    TIME_DECAY_HALF_LIFE_DAYS: int = 90
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    # Database
+    database_url: str = "postgresql://trustgrid_user:trustgrid_pass@localhost:5432/trustgrid_db"
+
+    # JWT
+    secret_key: str = "change_me_to_a_long_random_secret_key_32_chars_plus"
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60
+
+    # App
+    app_env: str = "development"
+    app_host: str = "127.0.0.1"
+    app_port: int = 8000
+
+    # CORS
+    frontend_origin: str = "http://localhost:5173"
 
 
 settings = Settings()

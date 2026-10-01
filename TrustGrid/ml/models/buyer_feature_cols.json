@@ -1,0 +1,1 @@
+["decayed_completion_rate", "decayed_problematic_return_rate", "decayed_payment_success_rate", "decayed_cancellation_rate", "engagement_quality", "total_orders", "cancelled_orders", "total_payments", "failed_payments", "total_returns", "problematic_returns", "meaningful_event_count", "recent_orders_30d", "recent_cancels_30d", "account_age_days"]

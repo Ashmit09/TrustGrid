@@ -1,0 +1,57 @@
+TrustGrid ML Evaluation — BUYER
+
+
+==================================================
+XGBoost — Test Set
+==================================================
+  Precision : 1.0000
+  Recall    : 0.8563
+  F1        : 0.9226
+  ROC-AUC   : 0.9979
+  Confusion :
+[[123   0]
+ [ 47 280]]
+
+              precision    recall  f1-score   support
+
+           0       0.72      1.00      0.84       123
+           1       1.00      0.86      0.92       327
+
+    accuracy                           0.90       450
+   macro avg       0.86      0.93      0.88       450
+weighted avg       0.92      0.90      0.90       450
+
+
+==================================================
+Logistic Regression Baseline — Test Set
+==================================================
+  Precision : 0.9970
+  Recall    : 1.0000
+  F1        : 0.9985
+  ROC-AUC   : 1.0000
+  Confusion :
+[[122   1]
+ [  0 327]]
+
+              precision    recall  f1-score   support
+
+           0       1.00      0.99      1.00       123
+           1       1.00      1.00      1.00       327
+
+    accuracy                           1.00       450
+   macro avg       1.00      1.00      1.00       450
+weighted avg       1.00      1.00      1.00       450
+
+
+Top 10 XGBoost Feature Importances:
+
+  total_orders                                 : 0.1851
+  cancelled_orders                             : 0.1380
+  failed_payments                              : 0.1289
+  engagement_quality                           : 0.0899
+  total_returns                                : 0.0839
+  problematic_returns                          : 0.0645
+  decayed_problematic_return_rate              : 0.0606
+  decayed_cancellation_rate                    : 0.0456
+  decayed_payment_success_rate                 : 0.0414
+  decayed_completion_rate                      : 0.0356
